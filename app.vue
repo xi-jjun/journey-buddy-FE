@@ -1,11 +1,13 @@
 <template>
 	<div>
-		<MainLayout>
-		</MainLayout>
+		<NuxtLayout>
+			<NuxtPage>
+
+			</NuxtPage>
+		</NuxtLayout>
 	</div>
 </template>
 <script setup>
-import MainLayout from "~/layouts/MainLayout.vue";
 </script>
 
 <style>
