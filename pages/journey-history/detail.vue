@@ -55,6 +55,11 @@
 		<KakaoMapView ref="kakaoMapRef" :mapOptions="kakaoMapOptions" :chatList="chatList">
 
 		</KakaoMapView>
+
+		<section class="chat-text-list-area">
+			<ChatView v-for="chat in chatList" :chat-component="chat">
+			</ChatView>
+		</section>
 	</section>
 
 </template>
@@ -65,6 +70,7 @@ import { Swiper, SwiperSlide } from "swiper/vue";
 import 'swiper/css';
 import chatApi from "~/service/chatApi";
 import journeyApi from "~/service/journeyApi";
+import ChatView from "~/components/ChatView.vue";
 
 // KAKAO MAP
 let chatList = [];
@@ -95,8 +101,8 @@ const kakaoMapOptions = {
 
 <style scoped lang="css">
 .journey-history-detail-page {
-  display: flex;
-  flex-direction: column;
+  //display: flex;
+  //flex-direction: column;
   align-items: center;
 }
 
@@ -152,15 +158,14 @@ const kakaoMapOptions = {
 }
 
 .journey-detail-summary-info {
-  margin-top: 12px;
-  border: 1px solid #F2F4F5;
-  border-radius: 2px;
-  padding: 12px 20px;
-  width: 80vw;
+	margin: 12px 12px;
+	border: 1px solid #F2F4F5;
+	border-radius: 2px;
+	padding: 12px 20px;
 
-  display: grid;
-  grid-column-gap: 12px;
-  grid-template-columns: 2fr 0.01fr 2fr 0.01fr 2fr;
+	display: grid;
+	grid-column-gap: 12px;
+	grid-template-columns: 2fr 0.01fr 2fr 0.01fr 2fr;
 }
 
 .total-chat-cnt-wrapper, .total-journey-time-wrapper, .total-distance-wrapper {
@@ -186,5 +191,12 @@ const kakaoMapOptions = {
 .total-chat-cnt-unit, .total-journey-time-unit, .total-distance-unit {
   color: #B8BFC4;
   font-size: 12px;
+}
+
+.chat-text-list-area {
+	margin: 0 12px 40px;
+	height: 250px;
+	border: 1px solid black;
+	overflow-y: scroll;
 }
 </style>
