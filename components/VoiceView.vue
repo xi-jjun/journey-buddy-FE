@@ -1,7 +1,8 @@
 <template>
   <section class="voice-view-component">
     <h3 class="voice-username">{{ voiceComponent.username }} 의 녹음</h3>
-		<img src="/images/journey-history/voice_record_file_icon.svg" alt="voice recorded image"/>
+		<img src="/images/journey-history/voice_record_file_icon.svg" alt="voice recorded image" @click="$refs.voicePlay.play()"/>
+    <audio ref="voicePlay" style="display: none;" controls :src="voiceComponent.file_url"></audio>
     <span class="voice-created-at">{{ voiceComponent.created_at }}</span>
   </section>
 </template>
