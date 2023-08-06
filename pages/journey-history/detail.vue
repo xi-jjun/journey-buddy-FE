@@ -60,6 +60,15 @@
 			<ChatView v-for="chat in chatList" :chat-component="chat">
 			</ChatView>
 		</section>
+
+		<section class="journey-history-detail-voices">
+			<h3>녹음</h3>
+			<div class="journey-history-detail-voices-wrapper">
+				<VoiceView :voice-component="voice" v-for="voice in journeyVoiceList">
+
+				</VoiceView>
+			</div>
+		</section>
 	</section>
 
 </template>
@@ -75,8 +84,9 @@ import ChatView from "~/components/ChatView.vue";
 // KAKAO MAP
 let chatList = [];
 let journeyDetailInfo = {};
-let journeyFileList; // 여행의 모든 파일 리스트
-let journeyImageList; // 여행의 모든 파일 중 이미지 리스트
+let journeyFileList = []; // 여행의 모든 파일 리스트
+let journeyImageList = []; // 여행의 모든 파일 중 이미지 리스트
+let journeyVoiceList = []; // 여행의 모든 파일 중 음성파일 리스트
 chatApi.all((response) => {
 	chatList = response.chats;
 });
@@ -90,6 +100,27 @@ journeyApi.getJourneyFiles(response => {
 		return journeyFile.content_type === 2;
 	});
 	journeyFileList = response.journeyFiles;
+});
+
+// TODO : journeyAPI 가 아니라 모두 chat api 에서 가져오도록 수정 필요 (어차피 정보는 다 여기있어서..)
+chatApi.all(response => {
+	response.chats.forEach(chatData => {
+		if (chatData.content_type === 2) {
+			journeyImageList.push({
+				file_url: chatData.content,
+				username: chatData.name,
+				content_type: chatData.content_type,
+				created_at: '7월 31일 오후 1:20'
+			});
+		} else if (chatData.content_type === 3) {
+			journeyVoiceList.push({
+				file_url: chatData.content,
+				username: chatData.name,
+				content_type: chatData.content_type,
+				created_at: '7월 31일 오후 1:20'
+			});
+		}
+	});
 });
 
 const kakaoMapOptions = {
@@ -198,5 +229,23 @@ const kakaoMapOptions = {
 	height: 250px;
 	border: 1px solid black;
 	overflow-y: scroll;
+}
+
+.journey-history-detail-voices {
+	margin: 10px 12px;
+}
+
+.journey-history-detail-voices-wrapper {
+	display: flex;
+	align-items: center;
+	overflow-x: scroll;
+	white-space: nowrap
+}
+
+.journey-history-detail-voices > h3 {
+	color: #262C31;
+	font-weight: bold;
+	font-size: 18px;
+	margin-bottom: 4px;
 }
 </style>

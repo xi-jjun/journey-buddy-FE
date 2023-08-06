@@ -17,6 +17,20 @@ const chatApi = {
 			{ id: 6, writer: writerType.USER, name: 'User name', content: 'https://journey-buddy-bucket-local.s3.ap-northeast-2.amazonaws.com/test_record_anything.m4a', content_type: contentType.VOICE, created_at: '오후 10:21', lat: 37.576496070472174, lng: 127.01773165922074 },
 			{ id: 7, writer: writerType.ASSISTANT, name: 'AI name', content: '퀘스트 들어간다 입 벌려라;', content_type: contentType.TEXT, created_at: '오후 3:49', lat: 37.59093209014804, lng: 127.03068989208113, is_quest: true },
 			{ id: 8, writer: writerType.USER, name: 'User name', content: '퀘스트는 나중에 할거라서;; 여행지나 추천해 노예새끼야', content_type: contentType.TEXT, created_at: '오후 10:21', lat: 37.576496070472174, lng: 127.01773165922074 },
+			{ id: 9, writer: writerType.ASSISTANT, name: 'AI name', content: '여행중이야? 파도소리 녹음해서 보내봐 확 씨', content_type: contentType.TEXT, created_at: '오후 3:49', lat: 37.59093209014804, lng: 127.03068989208113 },
+			{ id: 10, writer: writerType.USER, name: 'User name', content: 'https://journey-buddy-bucket-local.s3.ap-northeast-2.amazonaws.com/test_record_anything.m4a', content_type: contentType.VOICE, created_at: '오후 10:21', lat: 37.576496070472174, lng: 127.01773165922074 },
+			{ id: 11, writer: writerType.ASSISTANT, name: 'AI name', content: '여행중이야? 파도소리 녹음해서 보내봐 확 씨', content_type: contentType.TEXT, created_at: '오후 3:49', lat: 37.59093209014804, lng: 127.03068989208113 },
+			{ id: 12, writer: writerType.USER, name: 'User name', content: 'https://journey-buddy-bucket-local.s3.ap-northeast-2.amazonaws.com/test_record_anything.m4a', content_type: contentType.VOICE, created_at: '오후 10:21', lat: 37.576496070472174, lng: 127.01773165922074 },
+			{ id: 13, writer: writerType.ASSISTANT, name: 'AI name', content: '여행중이야? 파도소리 녹음해서 보내봐 확 씨', content_type: contentType.TEXT, created_at: '오후 3:49', lat: 37.59093209014804, lng: 127.03068989208113 },
+			{ id: 14, writer: writerType.USER, name: 'User name', content: 'https://journey-buddy-bucket-local.s3.ap-northeast-2.amazonaws.com/test_record_anything.m4a', content_type: contentType.VOICE, created_at: '오후 10:21', lat: 37.576496070472174, lng: 127.01773165922074 },
+			{ id: 15, writer: writerType.ASSISTANT, name: 'AI name', content: '여행중이야? 파도소리 녹음해서 보내봐 확 씨', content_type: contentType.TEXT, created_at: '오후 3:49', lat: 37.59093209014804, lng: 127.03068989208113 },
+			{ id: 16, writer: writerType.USER, name: 'User name', content: 'https://journey-buddy-bucket-local.s3.ap-northeast-2.amazonaws.com/test_record_anything.m4a', content_type: contentType.VOICE, created_at: '오후 10:21', lat: 37.576496070472174, lng: 127.01773165922074 },
+			{ id: 17, writer: writerType.ASSISTANT, name: 'AI name', content: '여행중이야? 파도소리 녹음해서 보내봐 확 씨', content_type: contentType.TEXT, created_at: '오후 3:49', lat: 37.59093209014804, lng: 127.03068989208113 },
+			{ id: 18, writer: writerType.USER, name: 'User name', content: 'https://journey-buddy-bucket-local.s3.ap-northeast-2.amazonaws.com/test_record_anything.m4a', content_type: contentType.VOICE, created_at: '오후 10:21', lat: 37.576496070472174, lng: 127.01773165922074 },
+			{ id: 19, writer: writerType.ASSISTANT, name: 'AI name', content: '여행중이야? 파도소리 녹음해서 보내봐 확 씨', content_type: contentType.TEXT, created_at: '오후 3:49', lat: 37.59093209014804, lng: 127.03068989208113 },
+			{ id: 20, writer: writerType.USER, name: 'User name', content: 'https://journey-buddy-bucket-local.s3.ap-northeast-2.amazonaws.com/test_record_anything.m4a', content_type: contentType.VOICE, created_at: '오후 10:21', lat: 37.576496070472174, lng: 127.01773165922074 },
+			{ id: 21, writer: writerType.ASSISTANT, name: 'AI name', content: '여행중이야? 파도소리 녹음해서 보내봐 확 씨', content_type: contentType.TEXT, created_at: '오후 3:49', lat: 37.59093209014804, lng: 127.03068989208113 },
+			{ id: 22, writer: writerType.USER, name: 'User name', content: 'https://journey-buddy-bucket-local.s3.ap-northeast-2.amazonaws.com/test_record_anything.m4a', content_type: contentType.VOICE, created_at: '오후 10:21', lat: 37.576496070472174, lng: 127.01773165922074 },
 		];
 
 		callback({ success: true, chats });
