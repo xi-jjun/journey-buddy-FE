@@ -137,10 +137,10 @@ const kakaoMapOptions = {
 }
 
 .journey-detail-info-address-name-wrapper {
-  margin: 4px 16px;
-  width: 100%;
-  display: flex;
-  justify-content: flex-start;
+	margin-top: 4px;
+	width: 100%;
+	display: flex;
+	justify-content: flex-start;
 }
 
 .journey-detail-info-address-name {
