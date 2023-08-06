@@ -101,7 +101,7 @@ export default {
   margin: 20px 12px;
   height: 36vh;
   border-radius: 4px;
-  border: 2px solid #778088;
+  border: 1px solid #778088;
 }
 
 #kakao-map {
