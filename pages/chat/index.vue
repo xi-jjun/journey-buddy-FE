@@ -32,6 +32,7 @@
 
 <script setup>
 import ChatView from "~/components/ChatView.vue";
+import chatApi from "~/service/chatApi";
 
 const today = new Date();
 const displayToday = today.toLocaleDateString("ko-KR");
@@ -43,53 +44,10 @@ const nowQuest = {
 }
 
 // TODO : 채팅 목록 API 요청하여 데이터 가져오기
-const chats = [
-	{
-		id: 1,
-		content: '안녕 나는 로봇이야. 너를 제거할 예정이지\n1.hello\n2.world\n3.rrr            r',
-		writer: 1,
-		name: '존잘슬탄남(AI)',
-		send_at: new Date().toLocaleDateString("ko-KR")
-	},
-	{
-		id: 2,
-		content: '할 수 있으면 해봐 쫄보련아',
-		writer: 2,
-		send_at: new Date().toLocaleDateString("ko-KR")
-	},
-	{
-		id: 3,
-		content: '허허허 이빨 재미나게 터네 후달리나봐',
-		writer: 1,
-		name: '존잘슬탄남(AI)',
-		send_at: new Date().toLocaleDateString("ko-KR")
-	},
-	{
-		id: 4,
-		content: '후달달? 어이가 없네?',
-		writer: 2,
-		send_at: new Date().toLocaleDateString("ko-KR")
-	},
-	{
-		id: 5,
-		content: '채\n팅\n길\n이\n늘\n리\n기\n',
-		writer: 1,
-		name: '존잘슬탄남(AI)',
-		send_at: new Date().toLocaleDateString("ko-KR")
-	},
-	{
-		id: 6,
-		content: '채\n팅\n길\n이\n늘\n리\n기\n',
-		writer: 2,
-		send_at: new Date().toLocaleDateString("ko-KR")
-	},
-	{
-		id: 7,
-		content: '안녕 나는 로봇이야. 너를 제거할 예정이지\n1.hello\n2.world\n3.rrr            r',
-		writer: 2,
-		send_at: new Date().toLocaleDateString("ko-KR")
-	},
-];
+let chats = [];
+chatApi.all(response => {
+	chats = response.chats;
+});
 
 </script>
 
