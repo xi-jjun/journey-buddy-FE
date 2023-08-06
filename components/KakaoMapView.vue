@@ -28,9 +28,10 @@ export default {
 	},
 	methods: {
 		loadScript() {
-			const KAKAO_MAP_API_KEY = '693fe45f8e58590d2ee321fc246ef2d4';
+			const config = useRuntimeConfig();
+			const KAKAOMAP_API_KEY = config.public.KAKAOMAP_API_KEY;
 			const script = document.createElement("script");
-			script.src = `//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=${KAKAO_MAP_API_KEY}`;
+			script.src = `//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=${KAKAOMAP_API_KEY}`;
 			script.onload = () => window.kakao.maps.load(this.loadMap);
 
 			document.head.appendChild(script);
