@@ -69,6 +69,15 @@
 				</VoiceView>
 			</div>
 		</section>
+
+		<section class="journey-history-detail-images">
+			<h3>사진</h3>
+			<div class="journey-history-detail-images-wrapper">
+				<ImageView :image-component="imageComponent" v-for="imageComponent in journeyImageListForImageView">
+
+				</ImageView>
+			</div>
+		</section>
 	</section>
 
 </template>
@@ -86,6 +95,7 @@ let chatList = [];
 let journeyDetailInfo = {};
 let journeyFileList = []; // 여행의 모든 파일 리스트
 let journeyImageList = []; // 여행의 모든 파일 중 이미지 리스트
+let journeyImageListForImageView = []; // 여행의 모든 파일 중 이미지 리스트
 let journeyVoiceList = []; // 여행의 모든 파일 중 음성파일 리스트
 chatApi.all((response) => {
 	chatList = response.chats;
@@ -106,7 +116,7 @@ journeyApi.getJourneyFiles(response => {
 chatApi.all(response => {
 	response.chats.forEach(chatData => {
 		if (chatData.content_type === 2) {
-			journeyImageList.push({
+			journeyImageListForImageView.push({
 				file_url: chatData.content,
 				username: chatData.name,
 				content_type: chatData.content_type,
@@ -227,7 +237,8 @@ const kakaoMapOptions = {
 .chat-text-list-area {
 	margin: 0 12px 40px;
 	height: 250px;
-	border: 1px solid black;
+	border: 1px solid #778088;
+	border-radius: 4px;
 	overflow-y: scroll;
 }
 
@@ -247,5 +258,23 @@ const kakaoMapOptions = {
 	font-weight: bold;
 	font-size: 18px;
 	margin-bottom: 4px;
+}
+
+.journey-history-detail-images {
+	margin: 20px 12px;
+}
+
+.journey-history-detail-images-wrapper {
+
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	grid-column-gap: 6px;
+	grid-row-gap: 4px;
+}
+
+.journey-history-detail-images > h3 {
+	color: #262C31;
+	font-weight: bold;
+	font-size: 18px;
 }
 </style>
