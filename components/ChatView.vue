@@ -1,22 +1,34 @@
 <template>
-  <div v-show="chatComponent.writer === 1" class="chatting">
+  <div v-if="chatComponent.writer === 1" class="chatting"  :id="`buddy_chat_id_${chatComponent.id}`" tabindex="0">
 		<img src="/images/chat/default_buddy_profile_image_in_chat_page.png">
 		<div class="chat-info">
 			<span class="ai-buddy-name">{{ chatComponent.name }}</span>
-			<div class="chat-info-content">
+			<div v-if="chatComponent.content_type === 1 && !chatComponent.is_quest" class="chat-info-content">
+				{{ chatComponent.content }}
+			</div>
+			<div v-if="chatComponent.content_type === 1 && chatComponent.is_quest" class="chat-info-content quest-chat-info">
 				{{ chatComponent.content }}
 			</div>
 		</div>
-		<span class="chat-send-datetime align-right-datetime">{{ chatComponent.send_at }}</span>
+		<span class="chat-send-datetime align-right-datetime">{{ chatComponent.created_at }}</span>
   </div>
-
-	<div v-show="chatComponent.writer === 2" class="chatting row-reverse">
+	<div v-if="chatComponent.writer === 2" class="chatting row-reverse" :id="`user_chat_id_${chatComponent.id}`" tabindex="0">
 		<div class="chat-info">
-			<div class="chat-info-content user-chat-info-content">
+			<div v-if="chatComponent.content_type === 1 && !chatComponent.is_quest" class="chat-info-content user-chat-info-content">
 				{{ chatComponent.content }}
 			</div>
+			<div v-if="chatComponent.content_type === 1 && chatComponent.is_quest" class="chat-info-content user-chat-info-content">
+				{{ chatComponent.content }}
+			</div>
+			<div v-if="chatComponent.content_type === 2" class="user-chat-info-image-content-wrapper">
+				<img :src="chatComponent.content" alt="user chat image" class="user-chat-info-image-content">
+			</div>
+			<div v-if="chatComponent.content_type === 3" class="">
+				<audio controls :src="chatComponent.content">
+				</audio>
+			</div>
 		</div>
-		<span class="chat-send-datetime align-right-datetime">{{ chatComponent.send_at }}</span>
+		<span class="chat-send-datetime align-right-datetime">{{ chatComponent.created_at }}</span>
 	</div>
 </template>
 
@@ -41,7 +53,6 @@ const { chatComponent } = defineProps(['chat-component']);
 .chat-info {
 	display: flex;
 	flex-direction: column;
-	max-width: 75%; /* 각 휴대폰 화면마다 채팅크기를 다르게 보이게하기 위해 추가 */
 }
 
 .ai-buddy-name {
@@ -54,8 +65,8 @@ const { chatComponent } = defineProps(['chat-component']);
 .chat-info-content {
 	border: 1px solid #547CF1;
 	border-radius: 48px;
-	padding: 12px 20px;
-	white-space: pre;
+	padding: 8px 16px;
+	white-space: pre-wrap;
 	font-size: 14px;
 	word-break: break-all;
 }
@@ -66,7 +77,27 @@ const { chatComponent } = defineProps(['chat-component']);
 	border: none;
 }
 
+.user-chat-info-image-content-wrapper {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+}
+
+.user-chat-info-image-content-wrapper img {
+	min-width: 180px;
+	max-width: 220px;
+	border-radius: 12px;
+}
+
+.quest-chat-info {
+	border: 1px solid orangered;
+	background-color: #FFBEBE;
+	color: white;
+	font-weight: bold;
+}
+
 .chat-send-datetime {
+	padding: 0 4px;
 	font-size: 9px;
 	font-weight: 600;
 	color: #858585;
