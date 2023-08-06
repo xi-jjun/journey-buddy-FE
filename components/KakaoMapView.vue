@@ -53,8 +53,14 @@ export default {
 				// show marker on kakao map
 				imageMarker.setMap(this.mapInstance);
 
+				// focus div when click marker
 				kakao.maps.event.addListener(imageMarker, 'click', () => {
-					console.log("chat : ", chat);
+					const chatId = chat.id;
+					if (chat.writer === 1) {
+						document.getElementById(`buddy_chat_id_${chatId}`).focus();
+					} else if (chat.writer === 2) {
+						document.getElementById(`user_chat_id_${chatId}`).focus();
+					}
 				});
 			});
 		},
@@ -92,7 +98,7 @@ export default {
 
 <style scoped lang="css">
 .kakao-map-component {
-	margin: 20px 12px;
+  margin: 20px 12px;
   height: 36vh;
   border-radius: 4px;
   border: 2px solid #778088;

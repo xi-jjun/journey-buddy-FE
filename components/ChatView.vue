@@ -1,5 +1,5 @@
 <template>
-  <div v-show="chatComponent.writer === 1" class="chatting">
+  <div v-if="chatComponent.writer === 1" class="chatting"  :id="`buddy_chat_id_${chatComponent.id}`" tabindex="0">
 		<img src="/images/chat/default_buddy_profile_image_in_chat_page.png">
 		<div class="chat-info">
 			<span class="ai-buddy-name">{{ chatComponent.name }}</span>
@@ -9,8 +9,7 @@
 		</div>
 		<span class="chat-send-datetime align-right-datetime">{{ chatComponent.send_at }}</span>
   </div>
-
-	<div v-show="chatComponent.writer === 2" class="chatting row-reverse">
+	<div v-if="chatComponent.writer === 2" class="chatting row-reverse" :id="`user_chat_id_${chatComponent.id}`" tabindex="0">
 		<div class="chat-info">
 			<div class="chat-info-content user-chat-info-content">
 				{{ chatComponent.content }}
