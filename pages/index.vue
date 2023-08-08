@@ -53,152 +53,48 @@
 			</div>
 
 			<div class="travel-list-container">
+				<TourCardView :tour-component="tourData" v-for="tourData in state.tourList">
 
-				<div class="travel-item">
-					<div class="travel-item-image">
-						<div class="travel-item-view-cnt">
-							<img src="/images/view_cnt_icon_main_layout.svg"/>
-							<span class="view-cnt">000 명</span>
-						</div>
-						<div class="travel-item-like-btn">
-							<img src="/images/like_icon_main_layout.svg">
-						</div>
-						<img src="/images/test/test_pic1.png">
-					</div>
-					<div class="travel-item-description">
-						<span>지역이름</span>
-						<span>·</span>
-						<span>N km</span>
-					</div>
-					<div class="travel-item-tour-title">
-						<span>투어명 : 봄내음과 함께하는 제주</span>
-					</div>
-				</div>
-
-				<div class="travel-item">
-					<div class="travel-item-image">
-						<div class="travel-item-view-cnt">
-							<img src="/images/view_cnt_icon_main_layout.svg"/>
-							<span class="view-cnt">000 명</span>
-						</div>
-						<div class="travel-item-like-btn">
-							<img src="/images/like_icon_main_layout.svg">
-						</div>
-						<img src="/images/test/test_pic1.png">
-					</div>
-					<div class="travel-item-description">
-						<span>지역이름</span>
-						<span>·</span>
-						<span>N km</span>
-					</div>
-					<div class="travel-item-tour-title">
-						<span>투어명 : 봄내음과 함께하는 제주</span>
-					</div>
-				</div>
-
-				<div class="travel-item">
-					<div class="travel-item-image">
-						<div class="travel-item-view-cnt">
-							<img src="/images/view_cnt_icon_main_layout.svg"/>
-							<span class="view-cnt">000 명</span>
-						</div>
-						<div class="travel-item-like-btn">
-							<img src="/images/like_icon_main_layout.svg">
-						</div>
-						<img src="/images/test/test_pic1.png">
-					</div>
-					<div class="travel-item-description">
-						<span>지역이름</span>
-						<span>·</span>
-						<span>N km</span>
-					</div>
-					<div class="travel-item-tour-title">
-						<span>투어명 : 봄내음과 함께하는 제주</span>
-					</div>
-				</div>
-
-				<div class="travel-item">
-					<div class="travel-item-image">
-						<div class="travel-item-view-cnt">
-							<img src="/images/view_cnt_icon_main_layout.svg"/>
-							<span class="view-cnt">000 명</span>
-						</div>
-						<div class="travel-item-like-btn">
-							<img src="/images/like_icon_main_layout.svg">
-						</div>
-						<img src="/images/test/test_pic1.png">
-					</div>
-					<div class="travel-item-description">
-						<span>지역이름</span>
-						<span>·</span>
-						<span>N km</span>
-					</div>
-					<div class="travel-item-tour-title">
-						<span>투어명 : 봄내음과 함께하는 제주</span>
-					</div>
-				</div>
-
-				<div class="travel-item">
-					<div class="travel-item-image">
-						<div class="travel-item-view-cnt">
-							<img src="/images/view_cnt_icon_main_layout.svg"/>
-							<span class="view-cnt">000 명</span>
-						</div>
-						<div class="travel-item-like-btn">
-							<img src="/images/like_icon_main_layout.svg">
-						</div>
-						<img src="/images/test/test_pic1.png">
-					</div>
-					<div class="travel-item-description">
-						<span>지역이름</span>
-						<span>·</span>
-						<span>N km</span>
-					</div>
-					<div class="travel-item-tour-title">
-						<span>투어명 : 봄내음과 함께하는 제주</span>
-					</div>
-				</div>
-
-				<div class="travel-item">
-					<div class="travel-item-image">
-						<div class="travel-item-view-cnt">
-							<img src="/images/view_cnt_icon_main_layout.svg"/>
-							<span class="view-cnt">000 명</span>
-						</div>
-						<div class="travel-item-like-btn">
-							<img src="/images/like_icon_main_layout.svg">
-						</div>
-						<img src="/images/test/test_pic1.png">
-					</div>
-					<div class="travel-item-description">
-						<span>지역이름 </span>
-						<span> · </span>
-						<span> N km</span>
-					</div>
-					<div class="travel-item-tour-title">
-						<span>투어명 : 봄내음과 함께하는 제주</span>
-					</div>
-				</div>
+				</TourCardView>
 			</div>
 		</div>
-
-
 	</div>
 </template>
 
-<script>
-export default {
-	data() {
-		return {
-			userLogin: false,
-			userCurrentJourney: '현재 진행중인 여행 타이틀',
-			buddyName: '져니버디',
-			totalJourneyCount: 0,
-			userNickname: ' 재준킴',
-			userProfileImage: 'https://item.kakaocdn.net/do/cedcbf84571e49821131986a98b6b70f8f324a0b9c48f77dbce3a43bd11ce785',
-		}
-	},
-}
+<script setup>
+import { useGeolocation } from '@vueuse/core';
+import TourCardView from "~/components/TourCardView.vue";
+
+const userLogin = false;
+const userCurrentJourney = '현재 진행중인 여행 타이틀';
+const buddyName = '져니버디';
+const totalJourneyCount = 0;
+const userNickname = ' 재준킴';
+const userProfileImage = 'https://item.kakaocdn.net/do/cedcbf84571e49821131986a98b6b70f8f324a0b9c48f77dbce3a43bd11ce785';
+
+const { coords } = useGeolocation();
+const state = reactive({ tourList: [] })
+
+watch(coords, async () => {
+	if (state.tourList.length > 0) return;
+
+	const currentLocation = toRaw(coords.value);
+	const searchParams = {
+		lat: currentLocation.latitude,
+		lng: currentLocation.longitude,
+		radius: 1000,
+	};
+	const config = useRuntimeConfig();
+	const { data: _tourList } = await useFetch(
+			`/api/v1/tour/list-by-geolocation?lat=${searchParams.lat}&lng=${searchParams.lng}&radius=${searchParams.radius}`,
+			{
+				baseURL: config.public.API_BASE_URL
+			}
+	);
+
+	state.tourList = toRaw(_tourList.value)['tour_list'];
+});
+
 </script>
 
 <style lang="css" scoped>
@@ -397,10 +293,10 @@ export default {
   height: 48px;
   border-radius: 38px;
   margin-top: 10px;
-  padding-left: 0px;
-  padding-right: 0px;
-  margin-left: 0px;
-  margin-right: 0px;
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: 0;
+  margin-right: 0;
 
   display: flex;
   justify-content: space-around;
@@ -441,62 +337,5 @@ export default {
   grid-row-gap: 28px;
   padding-left: 15px;
   padding-right: 15px;
-}
-
-.travel-item {
-  margin: 0px;
-  padding: 0px;
-}
-
-.travel-item-image {
-  position: relative;
-}
-
-.travel-item-view-cnt {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  color: white;
-  font-size: 11px;
-  padding: 3px;
-  background-color: rgba(0, 0, 0, 0.3);
-  border-radius: 2px;
-}
-
-.travel-item-like-btn {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-}
-
-.travel-item-image > img {
-  object-fit: cover;
-  width: 100%;
-}
-
-.travel-item-description {
-  margin-top: 8px;
-  display: flex;
-  width: 100%;
-}
-
-.travel-item-description span {
-  font-size: 13px;
-  font-weight: 600;
-  color: #636C73;
-  padding-right: 5px;
-}
-
-.travel-item-tour-title {
-  margin-top: 5px;
-  text-align: start;
-  font-size: 16px;
-  font-weight: 600;
-  width: 100%;
 }
 </style>
