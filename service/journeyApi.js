@@ -42,10 +42,10 @@ const journeyApi = {
 			id: 1,
 			title: '꽃내음과 함께하는 제주도 올레길',
 			subtitle: '제주도 투어길',
-			address_name: '제주도 서귀포시 123-4',
-			total_chat_cnt: 239,
-			total_journey_time: 85,
-			total_distance: 1353
+			address_name: '제주시 특별자치도, 우도면 연평리 1448-1',
+			total_chat_cnt: 21,
+			total_journey_time: 673,
+			total_distance: 31923
 		};
 
 		callback({ success: true, journey });

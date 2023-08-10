@@ -23,5 +23,6 @@ export default defineNuxtConfig({
             KAKAOMAP_API_KEY: process.env.KAKAOMAP_API_KEY,
             TOUR_API_SECRET_KEY: process.env.TOUR_API_SECRET_KEY
         }
-    }
+    },
+    ssf: false,
 })

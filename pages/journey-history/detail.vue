@@ -5,7 +5,7 @@
 		</BackNavbarView>
 
 		<Swiper class="journey-history-detail-images-swiper">
-			<SwiperSlide v-for="journeyImage in journeyImageList">
+			<SwiperSlide v-for="journeyImage in journeyImageListForImageView">
 				<img :src="journeyImage.file_url" alt="journey image" class="journey-slide-image">
 			</SwiperSlide>
 		</Swiper>
@@ -135,7 +135,7 @@ chatApi.all(response => {
 
 const kakaoMapOptions = {
 	center: { lat: chatList[0].lat, lng: chatList[0].lng },
-	level: 7
+	level: 10
 };
 
 </script>

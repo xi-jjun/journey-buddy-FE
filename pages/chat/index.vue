@@ -10,21 +10,22 @@
 		</div>
 
 		<section class="chat-text-list-area">
-			<ChatView v-for="chat in chats" :chat-component="chat">
+			<ChatView ref="chats" v-for="chat in chats" :chat-component="chat">
 			</ChatView>
 		</section>
 
 		<section class="chat-page-bottom-side">
 			<div v-show="nowQuest.existed" class="ongoing-quest-notice">
-				<div class="quest-status">진행 중</div>
+				<div v-if="!nowQuest.completed" class="quest-status-ing">진행중</div>
+				<div v-if="nowQuest.completed" class="quest-status-complete">완료</div>
 				<span class="quest-title">{{ nowQuest.title }}</span>
 			</div>
 
 			<div class="chat-page-input-functions">
 				<img src="/images/chat/camera.svg">
 				<img src="/images/chat/live_record.svg">
-				<textarea></textarea>
-				<img src="/images/chat/send_btn.png" class="send-btn">
+				<textarea id="sendChatContent"></textarea>
+				<img src="/images/chat/send_btn.png" class="send-btn" @click="sendChat">
 			</div>
 		</section>
 	</section>
@@ -40,7 +41,8 @@ const displayToday = today.toLocaleDateString("ko-KR");
 // TODO : 사용자의 현재 진행중인 퀘스트 가져오기
 const nowQuest = {
 	existed: true,
-	title: '63빌딩 기어서 올라간 후 인증샷'
+	completed: true,
+	title: '바닷가의 파도소리를 녹음해오세요!'
 }
 
 // TODO : 채팅 목록 API 요청하여 데이터 가져오기
@@ -48,6 +50,14 @@ let chats = [];
 chatApi.all(response => {
 	chats = response.chats;
 });
+
+const sendChat = () => {
+	const message = document.getElementById("sendChatContent").value;
+	chatApi.dummyPushChat(message, response => {
+		chats = response.chats;
+	});
+	console.log("chat length : ", chats.length)
+}
 
 </script>
 
@@ -125,7 +135,7 @@ chatApi.all(response => {
   width: 100%;
 }
 
-.quest-status {
+.quest-status-ing {
   background-color: red;
   font-weight: bold;
   font-size: 12px;
@@ -134,6 +144,17 @@ chatApi.all(response => {
   text-align: center;
   border-radius: 5px;
   margin-right: 10px;
+}
+
+.quest-status-complete {
+	background-color: greenyellow;
+	font-weight: bold;
+	font-size: 12px;
+	color: #1D364B;
+	padding: 4px 8px;
+	text-align: center;
+	border-radius: 5px;
+	margin-right: 10px;
 }
 
 .quest-title {

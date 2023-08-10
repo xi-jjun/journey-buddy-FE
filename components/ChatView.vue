@@ -64,7 +64,7 @@ const { chatComponent } = defineProps(['chat-component']);
 
 .chat-info-content {
 	border: 1px solid #547CF1;
-	border-radius: 48px;
+	border-radius: 15px;
 	padding: 8px 16px;
 	white-space: pre-wrap;
 	font-size: 14px;

@@ -53,7 +53,7 @@
 			</div>
 
 			<div class="travel-list-container">
-				<TourCardView :tour-component="tourData" v-for="tourData in state.tourList">
+				<TourCardView :tour-component="tourData" v-for="tourData in tourList">
 
 				</TourCardView>
 			</div>
@@ -62,7 +62,7 @@
 </template>
 
 <script setup>
-import { useGeolocation } from '@vueuse/core';
+// import { useGeolocation } from '@vueuse/core';
 import TourCardView from "~/components/TourCardView.vue";
 
 const userLogin = false;
@@ -72,28 +72,355 @@ const totalJourneyCount = 0;
 const userNickname = ' 재준킴';
 const userProfileImage = 'https://item.kakaocdn.net/do/cedcbf84571e49821131986a98b6b70f8f324a0b9c48f77dbce3a43bd11ce785';
 
-const { coords } = useGeolocation();
-const state = reactive({ tourList: [] })
+// const { coords } = useGeolocation();
 
-watch(coords, async () => {
-	if (state.tourList.length > 0) return;
+const tourList = [
+	{
+		"addr1": "제주특별자치도 제주시 세화14길 3",
+		"addr2": "",
+		"areacode": "39",
+		"booktour": "",
+		"cat1": "A05",
+		"cat2": "A0502",
+		"cat3": "A05020900",
+		"contentid": "2850913",
+		"contenttypeid": "39",
+		"createdtime": "20220907142125",
+		"firstimage": "http://tong.visitkorea.or.kr/cms/resource/08/2850908_image2_1.jpg",
+		"firstimage2": "http://tong.visitkorea.or.kr/cms/resource/08/2850908_image3_1.jpg",
+		"cpyrhtDivCd": "Type3",
+		"mapx": "126.8606961680",
+		"mapy": "33.5205279098",
+		"mlevel": "6",
+		"modifiedtime": "20220907142137",
+		"sigungucode": "4",
+		"tel": "",
+		"title": "가는곶 세화",
+		"zipcode": "63361"
+	},
+	{
+		"addr1": "제주특별자치도 제주시 복지로북길 4",
+		"addr2": "1층",
+		"areacode": "39",
+		"booktour": "",
+		"cat1": "A05",
+		"cat2": "A0502",
+		"cat3": "A05020100",
+		"contentid": "2906155",
+		"contenttypeid": "39",
+		"createdtime": "20221111131820",
+		"firstimage": "http://tong.visitkorea.or.kr/cms/resource/52/2906152_image2_1.jpg",
+		"firstimage2": "http://tong.visitkorea.or.kr/cms/resource/52/2906152_image3_1.jpg",
+		"cpyrhtDivCd": "Type3",
+		"mapx": "126.5206569716",
+		"mapy": "33.4888787305",
+		"mlevel": "6",
+		"modifiedtime": "20221111131843",
+		"sigungucode": "4",
+		"tel": "",
+		"title": "가람",
+		"zipcode": "63220"
+	},
+	{
+		"addr1": "제주특별자치도 서귀포시 중문관광로 332",
+		"addr2": "(대포동)",
+		"areacode": "39",
+		"booktour": "",
+		"cat1": "A05",
+		"cat2": "A0502",
+		"cat3": "A05020100",
+		"contentid": "2755053",
+		"contenttypeid": "39",
+		"createdtime": "20211008202759",
+		"firstimage": "http://tong.visitkorea.or.kr/cms/resource/47/2755047_image2_1.jpg",
+		"firstimage2": "http://tong.visitkorea.or.kr/cms/resource/47/2755047_image2_1.jpg",
+		"cpyrhtDivCd": "Type3",
+		"mapx": "126.4313173340",
+		"mapy": "33.2496843087",
+		"mlevel": "6",
+		"modifiedtime": "20221229140705",
+		"sigungucode": "3",
+		"tel": "",
+		"title": "가람돌솥밥",
+		"zipcode": "63544"
+	},
+	{
+		"addr1": "제주특별자치도 제주시 한경면 청수로 13-3",
+		"addr2": "",
+		"areacode": "39",
+		"booktour": "0",
+		"cat1": "A01",
+		"cat2": "A0101",
+		"cat3": "A01010400",
+		"contentid": "1884202",
+		"contenttypeid": "12",
+		"createdtime": "20140113194252",
+		"firstimage": "http://tong.visitkorea.or.kr/cms/resource/01/1884201_image2_1.jpg",
+		"firstimage2": "http://tong.visitkorea.or.kr/cms/resource/01/1884201_image2_1.jpg",
+		"cpyrhtDivCd": "Type3",
+		"mapx": "126.2460707194",
+		"mapy": "33.3209235283",
+		"mlevel": "6",
+		"modifiedtime": "20220923172132",
+		"sigungucode": "4",
+		"tel": "064-728-2742",
+		"title": "가메창(암메)",
+		"zipcode": "63006"
+	},
+	{
+		"addr1": "제주특별자치도 서귀포시 칠십리로 191",
+		"addr2": "",
+		"areacode": "39",
+		"booktour": "",
+		"cat1": "A05",
+		"cat2": "A0502",
+		"cat3": "A05020100",
+		"contentid": "2650410",
+		"contenttypeid": "39",
+		"createdtime": "20200326203220",
+		"firstimage": "http://tong.visitkorea.or.kr/cms/resource/77/2666377_image2_1.jpg",
+		"firstimage2": "http://tong.visitkorea.or.kr/cms/resource/77/2666377_image2_1.jpg",
+		"cpyrhtDivCd": "Type3",
+		"mapx": "126.5732606548",
+		"mapy": "33.2465785631",
+		"mlevel": "6",
+		"modifiedtime": "20220411173612",
+		"sigungucode": "3",
+		"tel": "064-732-9886",
+		"title": "가문잔치",
+		"zipcode": "63597"
+	},
+	{
+		"addr1": "제주특별자치도 제주시 연미길",
+		"addr2": "(오라삼동)",
+		"areacode": "39",
+		"booktour": "0",
+		"cat1": "A01",
+		"cat2": "A0101",
+		"cat3": "A01010400",
+		"contentid": "1884521",
+		"contenttypeid": "12",
+		"createdtime": "20140114193335",
+		"firstimage": "https://blog.kakaocdn.net/dn/bH6yWF/btqCBxVLQEJ/pJ4zl19crf5LcvDpRcSm3K/img.jpg",
+		"firstimage2": "",
+		"cpyrhtDivCd": "",
+		"mapx": "126.5039945305",
+		"mapy": "33.4889034625",
+		"mlevel": "6",
+		"modifiedtime": "20220811103831",
+		"sigungucode": "4",
+		"tel": "064-740-6001",
+		"title": "가새기오름",
+		"zipcode": "63145"
+	},
+	{
+		"addr1": "제주특별자치도 서귀포시 성산읍 섭지코지로 10",
+		"addr2": "",
+		"areacode": "39",
+		"booktour": "",
+		"cat1": "A05",
+		"cat2": "A0502",
+		"cat3": "A05020100",
+		"contentid": "2791481",
+		"contenttypeid": "39",
+		"createdtime": "20211210183846",
+		"firstimage": "http://tong.visitkorea.or.kr/cms/resource/99/2800599_image2_1.jpg",
+		"firstimage2": "http://tong.visitkorea.or.kr/cms/resource/99/2800599_image2_1.jpg",
+		"cpyrhtDivCd": "Type3",
+		"mapx": "126.9180903016",
+		"mapy": "33.4386517763",
+		"mlevel": "6",
+		"modifiedtime": "20221208092536",
+		"sigungucode": "3",
+		"tel": "",
+		"title": "가시아방국수",
+		"zipcode": "63641"
+	},
+	{
+		"addr1": "제주특별자치도 제주시 월랑로 36",
+		"addr2": "",
+		"areacode": "39",
+		"booktour": "",
+		"cat1": "A05",
+		"cat2": "A0502",
+		"cat3": "A05020100",
+		"contentid": "2837181",
+		"contenttypeid": "39",
+		"createdtime": "20220816161254",
+		"firstimage": "http://tong.visitkorea.or.kr/cms/resource/75/2837175_image2_1.jpg",
+		"firstimage2": "http://tong.visitkorea.or.kr/cms/resource/75/2837175_image3_1.jpg",
+		"cpyrhtDivCd": "Type3",
+		"mapx": "126.4763302701",
+		"mapy": "33.4888641378",
+		"mlevel": "6",
+		"modifiedtime": "20220916131956",
+		"sigungucode": "4",
+		"tel": "",
+		"title": "가시어멍김밥",
+		"zipcode": "63097"
+	},
+	{
+		"addr1": "제주특별자치도 서귀포시 대정읍 하모이삼로21번길 1",
+		"addr2": "",
+		"areacode": "39",
+		"booktour": "0",
+		"cat1": "A01",
+		"cat2": "A0101",
+		"cat3": "A01010400",
+		"contentid": "1885754",
+		"contenttypeid": "12",
+		"createdtime": "20140116185151",
+		"firstimage": "https://www.jejunews.com/news/photo/202108/2184985_206815_2012.jpg",
+		"firstimage2": "",
+		"cpyrhtDivCd": "",
+		"mapx": "126.2500169782",
+		"mapy": "33.2236315617",
+		"mlevel": "6",
+		"modifiedtime": "20220826145654",
+		"sigungucode": "3",
+		"tel": "",
+		"title": "가시오름",
+		"zipcode": "63507"
+	},
+	{
+		"addr1": "제주특별자치도 서귀포시 대정읍 가파로",
+		"addr2": "",
+		"areacode": "39",
+		"booktour": "0",
+		"cat1": "A01",
+		"cat2": "A0101",
+		"cat3": "A01011300",
+		"contentid": "126446",
+		"contenttypeid": "12",
+		"createdtime": "20030909090000",
+		"firstimage": "https://upload.wikimedia.org/wikipedia/commons/4/49/Gapado_scenery.JPG",
+		"firstimage2": "",
+		"cpyrhtDivCd": "",
+		"mapx": "126.2735884192",
+		"mapy": "33.1664326869",
+		"mlevel": "6",
+		"modifiedtime": "20230315143308",
+		"sigungucode": "3",
+		"tel": "",
+		"title": "가파도",
+		"zipcode": "63514"
+	},
+	{
+		"addr1": "제주특별자치도 서귀포시 호근동 2112",
+		"addr2": "(호근동)",
+		"areacode": "39",
+		"booktour": "0",
+		"cat1": "A01",
+		"cat2": "A0101",
+		"cat3": "A01010400",
+		"contentid": "1887368",
+		"contenttypeid": "12",
+		"createdtime": "20140121002153",
+		"firstimage": "https://www.newsje.com/news/photo/201811/115533_125066_2444.jpg",
+		"firstimage2": "",
+		"cpyrhtDivCd": "",
+		"mapx": "126.5269445463",
+		"mapy": "33.2767800518",
+		"mlevel": "6",
+		"modifiedtime": "20220809133003",
+		"sigungucode": "3",
+		"tel": "",
+		"title": "각시바우오름",
+		"zipcode": "63575"
+	},
+	{
+		"addr1": "제주특별자치도 서귀포시 성산읍 중산간동로",
+		"addr2": "(신풍리)",
+		"areacode": "39",
+		"booktour": "0",
+		"cat1": "A01",
+		"cat2": "A0101",
+		"cat3": "A01010500",
+		"contentid": "1887381",
+		"contenttypeid": "12",
+		"createdtime": "20140121004604",
+		"firstimage": "",
+		"firstimage2": "",
+		"cpyrhtDivCd": "",
+		"mapx": "126.8115590479",
+		"mapy": "33.3870224256",
+		"mlevel": "6",
+		"modifiedtime": "20230120155947",
+		"sigungucode": "3",
+		"tel": "",
+		"title": "갈마못(갈뫼못)",
+		"zipcode": "63635"
+	},
+	{
+		"addr1": "제주특별자치도 서귀포시 사계남로216번길 24-61 갈중이",
+		"addr2": "",
+		"areacode": "39",
+		"booktour": "0",
+		"cat1": "A02",
+		"cat2": "A0203",
+		"cat3": "A02030200",
+		"contentid": "635593",
+		"contenttypeid": "12",
+		"createdtime": "20081010200127",
+		"firstimage": "",
+		"firstimage2": "",
+		"cpyrhtDivCd": "",
+		"mapx": "126.3136584209",
+		"mapy": "33.2351423980",
+		"mlevel": "6",
+		"modifiedtime": "20220613155349",
+		"sigungucode": "3",
+		"tel": "",
+		"title": "갈중이(천연염색체험)",
+		"zipcode": "63528"
+	},
+	{
+		"addr1": "제주특별자치도 제주시 해맞이해안로 1296",
+		"addr2": "",
+		"areacode": "39",
+		"booktour": "",
+		"cat1": "A05",
+		"cat2": "A0502",
+		"cat3": "A05020100",
+		"contentid": "2853435",
+		"contenttypeid": "39",
+		"createdtime": "20220914152956",
+		"firstimage": "http://tong.visitkorea.or.kr/cms/resource/24/2853424_image2_1.jpg",
+		"firstimage2": "http://tong.visitkorea.or.kr/cms/resource/24/2853424_image3_1.jpg",
+		"cpyrhtDivCd": "Type3",
+		"mapx": "126.8509745258",
+		"mapy": "33.5319348245",
+		"mlevel": "6",
+		"modifiedtime": "20220914153035",
+		"sigungucode": "4",
+		"tel": "",
+		"title": "갈치공장",
+		"zipcode": "63360"
+	}
+];
 
-	const currentLocation = toRaw(coords.value);
-	const searchParams = {
-		lat: currentLocation.latitude,
-		lng: currentLocation.longitude,
-		radius: 1000,
-	};
-	const config = useRuntimeConfig();
-	const { data: _tourList } = await useFetch(
-			`/api/v1/tour/list-by-geolocation?lat=${searchParams.lat}&lng=${searchParams.lng}&radius=${searchParams.radius}`,
-			{
-				baseURL: config.public.API_BASE_URL
-			}
-	);
 
-	state.tourList = toRaw(_tourList.value)['tour_list'];
-});
+// const state = reactive({ tourList: [] })
+
+// watch(coords, async () => {
+// 	if (state.tourList.length > 0) return;
+//
+// 	const currentLocation = toRaw(coords.value);
+// 	const searchParams = {
+// 		lat: currentLocation.latitude,
+// 		lng: currentLocation.longitude,
+// 		radius: 1000,
+// 	};
+// 	const config = useRuntimeConfig();
+// 	const { data: _tourList } = await useFetch(
+// 			`/api/v1/tour/list-by-geolocation?lat=${searchParams.lat}&lng=${searchParams.lng}&radius=${searchParams.radius}`,
+// 			{
+// 				baseURL: config.public.API_BASE_URL
+// 			}
+// 	);
+//
+// 	state.tourList = toRaw(_tourList.value)['tour_list'];
+// });
 
 </script>
 
