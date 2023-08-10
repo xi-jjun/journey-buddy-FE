@@ -1,3 +1,54 @@
+<script setup>
+import TourCardView from "~/components/TourCardView.vue";
+
+const userLogin = false;
+const userCurrentJourney = '현재 진행중인 여행 타이틀';
+const buddyName = '져니버디';
+const totalJourneyCount = 0;
+const userNickname = ' 재준킴';
+const userProfileImage = 'https://item.kakaocdn.net/do/cedcbf84571e49821131986a98b6b70f8f324a0b9c48f77dbce3a43bd11ce785';
+
+const tourListState = ref(null);
+
+onMounted(() => {
+	window.onload = async () => {
+		const getCoords = async () => {
+			const pos = await new Promise((resolve, reject) => {
+				navigator.geolocation.getCurrentPosition(resolve, reject);
+			});
+
+			return {
+				long: pos.coords.longitude,
+				lat: pos.coords.latitude,
+			};
+		};
+
+		const coords = await getCoords();
+		const searchParams = {
+			lat: coords.lat,
+			lng: coords.long,
+			radius: 2000,
+			tour_content_type_id: 12, // 관광타입(12:관광지, 14:문화시설, 15:축제공연행사, 25:여행코스, 28:레포츠, 32:숙박, 38:쇼핑, 39:음식점) ID
+		};
+		const getTourList = async (searchParams) => {
+			const config = useRuntimeConfig();
+			const { data: _tourList } = await useFetch(
+					`/api/v1/tour/list-by-geolocation`,
+					{
+						baseURL: config.public.API_BASE_URL,
+						query: searchParams,
+					}
+			);
+
+			return toRaw(_tourList.value)['tour_list'];
+		};
+
+		tourListState.value = await getTourList(searchParams);
+	};
+});
+
+</script>
+
 <template>
 	<div id="MainLayout" class="main-layout">
 		<div id="nav-bar" class="main-layout-upside">
@@ -53,49 +104,13 @@
 			</div>
 
 			<div class="travel-list-container">
-				<TourCardView :tour-component="tourData" v-for="tourData in state.tourList">
+				<TourCardView :tour-component="tourData" v-for="tourData in tourListState">
 
 				</TourCardView>
 			</div>
 		</div>
 	</div>
 </template>
-
-<script setup>
-import { useGeolocation } from '@vueuse/core';
-import TourCardView from "~/components/TourCardView.vue";
-
-const userLogin = false;
-const userCurrentJourney = '현재 진행중인 여행 타이틀';
-const buddyName = '져니버디';
-const totalJourneyCount = 0;
-const userNickname = ' 재준킴';
-const userProfileImage = 'https://item.kakaocdn.net/do/cedcbf84571e49821131986a98b6b70f8f324a0b9c48f77dbce3a43bd11ce785';
-
-const { coords } = useGeolocation();
-const state = reactive({ tourList: [] })
-
-watch(coords, async () => {
-	if (state.tourList.length > 0) return;
-
-	const currentLocation = toRaw(coords.value);
-	const searchParams = {
-		lat: currentLocation.latitude,
-		lng: currentLocation.longitude,
-		radius: 1000,
-	};
-	const config = useRuntimeConfig();
-	const { data: _tourList } = await useFetch(
-			`/api/v1/tour/list-by-geolocation?lat=${searchParams.lat}&lng=${searchParams.lng}&radius=${searchParams.radius}`,
-			{
-				baseURL: config.public.API_BASE_URL
-			}
-	);
-
-	state.tourList = toRaw(_tourList.value)['tour_list'];
-});
-
-</script>
 
 <style lang="css" scoped>
 .main-layout-upside {
