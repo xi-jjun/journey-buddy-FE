@@ -73,11 +73,11 @@ const tabClickEvent = async (event) => {
 			환영해요, <strong> {{ userNickname }}</strong>님!
 		</div>
 
-		<div v-show="!userLogin" class="main-layout-user-login-section">
-			<span class="user-login-section-login">로그인</span>
-			<span class="user-login-section-sign-up">회원가입</span>
+		<div v-if="!userLogin" class="main-layout-user-login-section">
+			<NuxtLink to="/login" class="user-login-section-login">로그인</NuxtLink>
+			<NuxtLink to="/sign-up" class="user-login-section-sign-up">회원가입</NuxtLink>
 		</div>
-		<div v-show="userLogin" class="main-layout-current-journey">
+		<div v-if="userLogin" class="main-layout-current-journey">
 			<span>진행중인 여행</span>
 			<div class="current-journey-title">{{ userCurrentJourney }}</div>
 		</div>
@@ -180,9 +180,11 @@ const tabClickEvent = async (event) => {
   align-items: center;
 }
 
-.main-layout-user-login-section span {
-  font-size: 28px;
-  font-weight: bold;
+.user-login-section-login, .user-login-section-sign-up {
+	font-size: 28px;
+	font-weight: bold;
+	text-decoration: none;
+	color: #262C31;
 }
 
 .main-layout-current-journey {
