@@ -5,7 +5,7 @@
 
 	<section class="login-page-first-journey-buddy">
 		<span class="question-first">져니버디가 처음이신가요?</span>
-		<span class="go-sign-up">회원가입하기</span>
+		<NuxtLink to="/sign-up" class="go-sign-up">회원가입하기</NuxtLink>
 	</section>
 
 	<section class="login-page-form">
@@ -71,6 +71,7 @@
   margin-left: 8px;
   font-weight: bold;
   color: #76A4FF;
+	text-decoration: none;
 }
 
 .login-page-form {
