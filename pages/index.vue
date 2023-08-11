@@ -1,5 +1,6 @@
 <script setup>
 import TourCardView from "~/components/TourCardView.vue";
+import tourApi from "~/service/tourApi"
 
 const userLogin = false;
 const userCurrentJourney = '현재 진행중인 여행 타이틀';
@@ -8,44 +9,51 @@ const totalJourneyCount = 0;
 const userNickname = ' 재준킴';
 const userProfileImage = 'https://item.kakaocdn.net/do/cedcbf84571e49821131986a98b6b70f8f324a0b9c48f77dbce3a43bd11ce785';
 
-const tourListState = ref(null);
+const tourListByLocation = ref(null);
 
 onMounted(() => {
 	window.onload = async () => {
-		const getCoords = async () => {
-			const pos = await new Promise((resolve, reject) => {
-				navigator.geolocation.getCurrentPosition(resolve, reject);
-			});
-
-			return {
-				long: pos.coords.longitude,
-				lat: pos.coords.latitude,
-			};
-		};
-
-		const coords = await getCoords();
+		const coords = await tourApi.getCurrentLocation();
 		const searchParams = {
 			lat: coords.lat,
-			lng: coords.long,
+			lng: coords.lng,
 			radius: 2000,
 			tour_content_type_id: 12, // 관광타입(12:관광지, 14:문화시설, 15:축제공연행사, 25:여행코스, 28:레포츠, 32:숙박, 38:쇼핑, 39:음식점) ID
 		};
-		const getTourList = async (searchParams) => {
-			const config = useRuntimeConfig();
-			const { data: _tourList } = await useFetch(
-					`/api/v1/tour/list-by-geolocation`,
-					{
-						baseURL: config.public.API_BASE_URL,
-						query: searchParams,
-					}
-			);
 
-			return toRaw(_tourList.value)['tour_list'];
-		};
-
-		tourListState.value = await getTourList(searchParams);
+		tourListByLocation.value = await tourApi.getTourListByLocation(searchParams);
 	};
 });
+
+const tabClickEvent = async (event) => {
+	const defaultTabClass = ['travel-tab'];
+	const tourTabIds = ['travel-tab-location', 'travel-tab-hot-place', 'travel-tab-restaurant'];
+	tourTabIds.forEach(tourTabId => {
+		const tourTab = document.getElementById(tourTabId);
+		tourTab.classList = defaultTabClass;
+	});
+
+	const clickedTab = document.getElementById(event.target.id);
+	clickedTab.classList = 'travel-tab selected-travel-tab'; // for css
+
+	let tourContentTypeId;
+	if (event.target.id === 'travel-tab-location') {
+		tourContentTypeId = 12;
+	} else if (event.target.id === 'travel-tab-hot-place') {
+		tourContentTypeId = 15;
+	} else if (event.target.id === 'travel-tab-restaurant') {
+		tourContentTypeId = 39;
+	}
+
+	const coords = await tourApi.getCurrentLocation();
+	const searchParams = {
+		lat: coords.lat,
+		lng: coords.lng,
+		radius: 2000,
+		tour_content_type_id: tourContentTypeId,
+	};
+	tourListByLocation.value = await tourApi.getTourListByLocation(searchParams);
+};
 
 </script>
 
@@ -98,13 +106,25 @@ onMounted(() => {
 			<span>빅데이터 기반 AI추천 여행지</span>
 
 			<div class="travel-tabs">
-				<span class="selected-travel-tab">내 근처 여행</span>
-				<span class="travel-tab">핫플 여행</span>
-				<span class="travel-tab">맛집 여행</span>
+				<span id="travel-tab-location" class="selected-travel-tab travel-tab" @click="tabClickEvent">내 근처 여행</span>
+				<span id="travel-tab-hot-place" class="travel-tab" @click="tabClickEvent">핫플 여행</span>
+				<span id="travel-tab-restaurant" class="travel-tab" @click="tabClickEvent">맛집 여행</span>
 			</div>
 
-			<div class="travel-list-container">
-				<TourCardView :tour-component="tourData" v-for="tourData in tourListState">
+			<div id="travel-list-by-location" class="travel-list-container">
+				<TourCardView :tour-component="tourData" v-for="tourData in tourListByLocation">
+
+				</TourCardView>
+			</div>
+
+			<div id="travel-list-by-hot-place" style="display: none;" class="travel-list-container">
+				<TourCardView :tour-component="tourData" v-for="tourData in tourListByHotPlace">
+
+				</TourCardView>
+			</div>
+
+			<div id="travel-list-by-restaurant" style="display: none;" class="travel-list-container">
+				<TourCardView :tour-component="tourData" v-for="tourData in tourListByRestaurant">
 
 				</TourCardView>
 			</div>
