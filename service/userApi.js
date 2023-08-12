@@ -6,7 +6,7 @@ const userApi = {
 		try {
 			const { data } = await axios.get(`/api/v1/users/${userId}`, {
 				baseURL: config.public.API_BASE_URL,
-				headers: { Authorization: token, 'Access-Control-Allow-Origin': '*' },
+				headers: { Authorization: token, 'Access-Control-Allow-Origin': '*', 'ngrok-skip-browser-warning': '123' },
 			});
 
 			return data;

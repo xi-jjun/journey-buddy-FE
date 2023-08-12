@@ -16,7 +16,7 @@ const loginBtnClick = async () => {
 
 	const config = useRuntimeConfig();
 	const response = await $fetch('/api/v1/users/login', {
-		headers: { 'Access-Control-Allow-Origin': '*' },
+		headers: { 'Access-Control-Allow-Origin': '*', 'ngrok-skip-browser-warning': '123' },
 		baseURL: config.public.API_BASE_URL,
 		method: 'POST',
 		body: { email: inputId, password: inputPassword }

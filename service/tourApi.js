@@ -15,7 +15,7 @@ const tourApi = {
 			const { data } = await axios.get(`${config.public.API_BASE_URL}/api/v1/tour/list-by-geolocation`, {
 				// baseURL: config.public.API_BASE_URL,
 				params: searchParams,
-				headers: { 'Access-Control-Allow-Origin': '*' }
+				headers: { 'Access-Control-Allow-Origin': '*', 'ngrok-skip-browser-warning': '123' }
 			});
 
 			return data.tour_list;
