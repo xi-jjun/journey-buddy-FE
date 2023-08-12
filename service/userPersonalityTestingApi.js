@@ -5,7 +5,7 @@ const userPersonalityTestingApi = {
 		const config = useRuntimeConfig();
 		try {
 			const { data } = await axios.get(`${config.public.API_BASE_URL}/api/v1/users/${userId}/personalities`, {
-				headers: { Authorization: token, }
+				headers: { Authorization: token, 'Access-Control-Allow-Origin': '*' }
 			});
 			return data;
 		} catch (error) {
@@ -17,7 +17,7 @@ const userPersonalityTestingApi = {
 		const config = useRuntimeConfig();
 		try {
 			const { data } = await axios.post(`${config.public.API_BASE_URL}/api/v1/users/${userId}/personalities`, { personalities: personalities }, {
-				headers: { Authorization: token, }
+				headers: { Authorization: token, 'Access-Control-Allow-Origin': '*' }
 			});
 			return data;
 		} catch (error) {

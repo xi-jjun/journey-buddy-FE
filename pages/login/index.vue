@@ -16,6 +16,7 @@ const loginBtnClick = async () => {
 
 	const config = useRuntimeConfig();
 	const response = await $fetch('/api/v1/users/login', {
+		headers: { 'Access-Control-Allow-Origin': '*' },
 		baseURL: config.public.API_BASE_URL,
 		method: 'POST',
 		body: { email: inputId, password: inputPassword }
