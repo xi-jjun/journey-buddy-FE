@@ -15,13 +15,10 @@ export default defineNuxtConfig({
         port: 5001
     },
     runtimeConfig: {
-        // The private keys which are only available within server-side
-        apiTestSecret: "123",
         // Keys within public, will be also exposed to the client-side
         public: {
             API_BASE_URL: process.env.API_BASE_URL,
             KAKAOMAP_API_KEY: process.env.KAKAOMAP_API_KEY,
-            TOUR_API_SECRET_KEY: process.env.TOUR_API_SECRET_KEY
         }
     }
 })
