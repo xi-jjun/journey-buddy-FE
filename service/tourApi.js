@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const tourApi = {
 	async getCurrentLocation() {
 		const pos = await new Promise((resolve, reject) => {
@@ -8,13 +10,19 @@ const tourApi = {
 	},
 	async getTourListByLocation(searchParams) {
 		const config = useRuntimeConfig();
-		const { data: _tourList } = await useFetch(`/api/v1/tour/list-by-geolocation`, {
-			baseURL: config.public.API_BASE_URL,
-			query: searchParams,
-			headers: { 'Access-Control-Allow-Origin': '*' }
-		});
 
-		return toRaw(_tourList.value)['tour_list'];
+		try {
+			const { data } = await axios.get(`${config.public.API_BASE_URL}/api/v1/tour/list-by-geolocation`, {
+				// baseURL: config.public.API_BASE_URL,
+				params: searchParams,
+				headers: { 'Access-Control-Allow-Origin': '*' }
+			});
+
+			return data.tour_list;
+		} catch (error) {
+			console.log("fail getTourListByLocation by ", error);
+			return error.response.data;
+		}
 	},
 }
 

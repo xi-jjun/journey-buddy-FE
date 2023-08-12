@@ -38,11 +38,13 @@ if (userTokenFromLocalStorage) {
 		navigateTo('/login');
 	}
 
-	userDetailInfo = await userApi.getUserDetail(userId, userTokenFromLocalStorage);
-	if (Object.keys(userDetailInfo).length === 0) {
+	const result = await userApi.getUserDetail(userId, userTokenFromLocalStorage);
+
+	if (result.code !== 200) {
 		// 서버에서 값을 못 받아 왔다면, 로그인 화면으로 이동 (어차피 로그인된 상태라면, 메인 화면으로 다시 리다이렉트 됨)
 		navigateTo('/login');
 	}
+	userDetailInfo = result.user;
 }
 
 const tabClickEvent = async (event) => {
