@@ -1,29 +1,48 @@
 <script setup>
 import TourCardView from "~/components/TourCardView.vue";
-import tourApi from "~/service/tourApi"
+import tourApi from "~/service/tourApi";
+import nuxtStorage from 'nuxt-storage';
+import constant from '~/service/constant';
+import userApi from '~/service/userApi';
+import parseJwt from "~/service/jwtParser";
 
-const userLogin = false;
 const userCurrentJourney = '현재 진행중인 여행 타이틀';
-const buddyName = '져니버디';
 const totalJourneyCount = 0;
-const userNickname = ' 재준킴';
-const userProfileImage = 'https://item.kakaocdn.net/do/cedcbf84571e49821131986a98b6b70f8f324a0b9c48f77dbce3a43bd11ce785';
+const totalJourneyCountFromAllUsers = 1430;
 
-const tourListByLocation = ref(null);
+let userDetailInfo = ref(null); // 사용자 정보 객체
+const tourListByLocation = ref(null); // tour api 를 통한 관광지 객체 리스트
+const userTokenFromLocalStorage = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY); // user token
 
-onMounted(() => {
-	window.onload = async () => {
-		const coords = await tourApi.getCurrentLocation();
-		const searchParams = {
-			lat: coords.lat,
-			lng: coords.lng,
-			radius: 2000,
-			tour_content_type_id: 12, // 관광타입(12:관광지, 14:문화시설, 15:축제공연행사, 25:여행코스, 28:레포츠, 32:숙박, 38:쇼핑, 39:음식점) ID
-		};
-
-		tourListByLocation.value = await tourApi.getTourListByLocation(searchParams);
+onMounted(async () => {
+	const coords = await tourApi.getCurrentLocation();
+	const searchParams = {
+		lat: coords.lat,
+		lng: coords.lng,
+		radius: 2000,
+		tour_content_type_id: 12, // 관광타입(12:관광지, 14:문화시설, 15:축제공연행사, 25:여행코스, 28:레포츠, 32:숙박, 38:쇼핑, 39:음식점) ID
 	};
+
+	tourListByLocation.value = await tourApi.getTourListByLocation(searchParams);
 });
+
+if (userTokenFromLocalStorage) {
+	const userTokenPayload = parseJwt(userTokenFromLocalStorage); // user_id, email, expired_at
+	const userId = userTokenPayload['user_id'];
+	const expiredAt = userTokenPayload['expired_at'];
+	const now = new Date();
+	if (now > expiredAt) {
+		nuxtStorage.localStorage.removeItem(constant.LOCAL_STORAGE_USER_TOKEN_KEY);
+		// 토큰이 만료됐다면, 로그인 화면으로 이동
+		navigateTo('/login');
+	}
+
+	userDetailInfo = await userApi.getUserDetail(userId, userTokenFromLocalStorage);
+	if (Object.keys(userDetailInfo).length === 0) {
+		// 서버에서 값을 못 받아 왔다면, 로그인 화면으로 이동 (어차피 로그인된 상태라면, 메인 화면으로 다시 리다이렉트 됨)
+		navigateTo('/login');
+	}
+}
 
 const tabClickEvent = async (event) => {
 	const defaultTabClass = ['travel-tab'];
@@ -64,29 +83,31 @@ const tabClickEvent = async (event) => {
 			<img src="/images/menu_btn_main_layout_upside.png" class="upside-menu-btn"/>
 		</div>
 
-		<div v-show="!userLogin" class="main-layout-anonymous-welcome">
+		<div v-if="!userTokenFromLocalStorage" class="main-layout-anonymous-welcome">
 			환영합니다,<br/>
 			져니버디와 함께 새로운 여행을 시작해요!
 		</div>
-		<div v-show="userLogin" class="main-layout-user-welcome">
-			<img :src="userProfileImage" class="user-profile-image" alt="user-profile-image">
-			환영해요, <strong> {{ userNickname }}</strong>님!
+		<div v-if="userTokenFromLocalStorage" class="main-layout-user-welcome">
+			<img :src="userDetailInfo.profile_image_url" class="user-profile-image" alt="user-profile-image">
+			환영해요, <strong> {{ userDetailInfo.nickname }}</strong>님!
 		</div>
 
-		<div v-show="!userLogin" class="main-layout-user-login-section">
-			<span class="user-login-section-login">로그인</span>
-			<span class="user-login-section-sign-up">회원가입</span>
+		<div v-if="!userTokenFromLocalStorage" class="main-layout-user-login-section">
+			<NuxtLink to="/login" class="user-login-section-login">로그인</NuxtLink>
+			<NuxtLink to="/sign-up" class="user-login-section-sign-up">회원가입</NuxtLink>
 		</div>
-		<div v-show="userLogin" class="main-layout-current-journey">
+		<div v-if="userTokenFromLocalStorage" class="main-layout-current-journey">
 			<span>진행중인 여행</span>
 			<div class="current-journey-title">{{ userCurrentJourney }}</div>
 		</div>
 
 		<div class="main-layout-travel-with-journey-buddy">
-			<span v-show="!userLogin" class="travel-with-journey-buddy-title">{{ buddyName }}와 함께한 여행</span>
-			<span v-show="userLogin" class="travel-with-journey-buddy-title">AI와 함께한 여행기록</span>
-			<span class="travel-with-journey-buddy-total-count">{{ totalJourneyCount }}</span>
-			<img v-show="userLogin" src="/images/go_to_icon_main_layout.svg" alt="goto_journey"/>
+			<span v-if="!userTokenFromLocalStorage" class="travel-with-journey-buddy-title">져니버디와 함께한 여행</span> <!-- 로그인안된 유저들이 보는 문구 -->
+			<span v-if="userTokenFromLocalStorage" class="travel-with-journey-buddy-title">AI와 함께한 여행기록</span> <!-- 로그인된 유저들이 보는 문구 -->
+			<span v-if="userTokenFromLocalStorage && totalJourneyCount === 0" class="travel-with-journey-buddy-total-count">여행을 떠나요!</span> <!-- 로그인 된 상태 AND 여행 0회 : 여행을 떠나요 문구 출력 -->
+			<span v-if="userTokenFromLocalStorage && totalJourneyCount !== 0" class="travel-with-journey-buddy-total-count">{{ totalJourneyCount }}</span> <!-- 로그인 된 상태 : 해당 유저의 여행 총 횟수 -->
+			<span v-if="!userTokenFromLocalStorage" class="travel-with-journey-buddy-total-count">{{ totalJourneyCountFromAllUsers }}</span> <!-- 로그인 안된 상태 : 모든 유저의 여행 총 횟수 -->
+			<img v-if="userTokenFromLocalStorage" src="/images/go_to_icon_main_layout.svg" alt="goto_journey"/>
 		</div>
 
 		<div class="main-layout-travel-start-btns">
@@ -113,18 +134,6 @@ const tabClickEvent = async (event) => {
 
 			<div id="travel-list-by-location" class="travel-list-container">
 				<TourCardView :tour-component="tourData" v-for="tourData in tourListByLocation">
-
-				</TourCardView>
-			</div>
-
-			<div id="travel-list-by-hot-place" style="display: none;" class="travel-list-container">
-				<TourCardView :tour-component="tourData" v-for="tourData in tourListByHotPlace">
-
-				</TourCardView>
-			</div>
-
-			<div id="travel-list-by-restaurant" style="display: none;" class="travel-list-container">
-				<TourCardView :tour-component="tourData" v-for="tourData in tourListByRestaurant">
 
 				</TourCardView>
 			</div>
@@ -180,9 +189,11 @@ const tabClickEvent = async (event) => {
   align-items: center;
 }
 
-.main-layout-user-login-section span {
-  font-size: 28px;
-  font-weight: bold;
+.user-login-section-login, .user-login-section-sign-up {
+	font-size: 28px;
+	font-weight: bold;
+	text-decoration: none;
+	color: #262C31;
 }
 
 .main-layout-current-journey {

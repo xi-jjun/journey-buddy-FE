@@ -1,3 +1,33 @@
+<script setup>
+import nuxtStorage from 'nuxt-storage';
+import constant from '~/service/constant'
+
+onMounted(() => {
+	const token = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY);
+	// 이미 로그인된 사용자가 로그인 페이지에 접근하려고 했을 때에는 메인 페이지로 리다이렉트 시킨다.
+	if (token) {
+		navigateTo('/');
+	}
+});
+
+const loginBtnClick = async () => {
+	const inputId = document.getElementById("jb-id").value;
+	const inputPassword = document.getElementById("jb-password").value;
+
+	const config = useRuntimeConfig();
+	const response = await $fetch('/api/v1/users/login', {
+		baseURL: config.public.API_BASE_URL,
+		method: 'POST',
+		body: { email: inputId, password: inputPassword }
+	});
+	const { code, token } = response;
+	if (code === 200) {
+		nuxtStorage.localStorage.setData(constant.LOCAL_STORAGE_USER_TOKEN_KEY, token, 24, 'h');
+		navigateTo('/');
+	}
+};
+</script>
+
 <template>
 	<section class="login-page-jb-logo">
 		<img src="/images/login/jb_logo_login_page.svg" alt="jb-login-logo">
@@ -5,20 +35,20 @@
 
 	<section class="login-page-first-journey-buddy">
 		<span class="question-first">져니버디가 처음이신가요?</span>
-		<span class="go-sign-up">회원가입하기</span>
+		<NuxtLink to="/sign-up" class="go-sign-up">회원가입하기</NuxtLink>
 	</section>
 
 	<section class="login-page-form">
 		<div class="form-id">
 			<label>아이디</label>
-			<input class="form-id-input" placeholder="아이디를 입력하세요"/>
+			<input id="jb-id" class="form-id-input" placeholder="아이디를 입력하세요"/>
 		</div>
 		<div class="form-password">
 			<label>비밀번호</label>
-			<input class="form-password-input" type="password" placeholder="비밀번호를 입력하세요"/>
+			<input id="jb-password" class="form-password-input" type="password" placeholder="비밀번호를 입력하세요"/>
 		</div>
 
-		<button class="form-login-submit">로그인</button>
+		<button class="form-login-submit" @click="loginBtnClick">로그인</button>
 	</section>
 
 	<section class="login-page-additional">
@@ -40,9 +70,6 @@
 		</div>
 	</section>
 </template>
-
-<script>
-</script>
 
 <style scoped lang="css">
 .login-page-jb-logo {
@@ -71,6 +98,7 @@
   margin-left: 8px;
   font-weight: bold;
   color: #76A4FF;
+	text-decoration: none;
 }
 
 .login-page-form {
@@ -113,7 +141,7 @@
   margin-top: 15px;
 }
 
-.form-login-submit {
+.form-login-submit, .form-login-submit:active {
   margin-top: 15px;
   height: 48px;
   border-style: none;
@@ -123,6 +151,10 @@
   color: white;
   font-size: 16px;
   font-weight: 600;
+}
+
+.form-login-submit:active {
+	background-color: #528dff;
 }
 
 .login-page-additional {
