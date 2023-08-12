@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const contentType = {
 	TEXT: 1, IMAGE: 2, VOICE: 3
 }
@@ -67,7 +69,19 @@ const journeyApi = {
 		]
 
 		callback({ success: true, journeyFiles });
-	}
+	},
+	async startJourney(gender, token) {
+		const config = useRuntimeConfig();
+		try {
+			const { data } = await axios.post(`${config.public.API_BASE_URL}/api/v1/journeys`, { gender: gender }, {
+				headers: { Authorization: token, }
+			});
+			return data;
+		} catch (error) {
+			console.log("fail startJourney by ", error);
+			return error.response.data;
+		}
+	},
 }
 
 export default journeyApi;

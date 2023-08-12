@@ -10,16 +10,33 @@
 </template>
 
 <script setup>
-
-import {Swiper, SwiperSlide} from "swiper/vue";
+import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
 import PersonalitySwipeView from "~/components/PersonalitySwipeView.vue";
+import userPersonalityTestingApi from "~/service/userPersonalityTestingApi";
+import nuxtStorage from "nuxt-storage";
+import constant from "~/service/constant";
+import parseJwt from "~/service/jwtParser";
 
 let userSelectedInfos = [];
+const userTokenFromLocalStorage = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY); // user token
 
 // value => { selectedId: personalityChoiceComponent.choice1.id, name: personalityChoiceComponent.choice1.name }
-function savePersonalityIds(value) {
+async function savePersonalityIds(value) {
 	userSelectedInfos.push(value);
+	// 8개의 선택지를 모두 고르면, 서버로 성향정보를 보낸다.
+	if (userSelectedInfos.length === 8) {
+		const personalitiesString = userSelectedInfos.map((selectedPersonality) => selectedPersonality.selectedId).join(',');
+		const userTokenPayload = parseJwt(userTokenFromLocalStorage); // user_id, email, expired_at
+		const userId = userTokenPayload['user_id'];
+		const result = await userPersonalityTestingApi.createUserPersonality(userId, personalitiesString, userTokenFromLocalStorage);
+		if (result.code !== 200) {
+			console.log("error response from savePersonalityIds");
+			return;
+		}
+
+		navigateTo('/define-yourself/complete');
+	}
 	console.log("after arr : ", userSelectedInfos);
 }
 
@@ -80,12 +97,12 @@ const personalityChoices = [
 	{
 		question: '선호하는 투어 스타일은?',
 		choice1: {
-			id: 5,
+			id: 9,
 			name: '관광지 투어',
 			image_url: '/images/personality-testing/tour_prefer.svg'
 		},
 		choice2: {
-			id: 6,
+			id: 10,
 			name: '맛집 투어',
 			image_url: '/images/personality-testing/food_prefer.svg'
 		}
@@ -93,12 +110,12 @@ const personalityChoices = [
 	{
 		question: '선호하는 여행 장소는?',
 		choice1: {
-			id: 5,
+			id: 11,
 			name: '붐비는 곳',
 			image_url: '/images/personality-testing/crowd.svg'
 		},
 		choice2: {
-			id: 6,
+			id: 12,
 			name: '한산한 곳',
 			image_url: '/images/personality-testing/hansan.svg'
 		}
@@ -106,12 +123,12 @@ const personalityChoices = [
 	{
 		question: '선호하는 여행 소비 스타일은?',
 		choice1: {
-			id: 5,
+			id: 13,
 			name: '럭셔리',
 			image_url: '/images/personality-testing/luxury.svg'
 		},
 		choice2: {
-			id: 6,
+			id: 14,
 			name: '가성비',
 			image_url: '/images/personality-testing/gaSungBi.svg'
 		}
@@ -119,12 +136,12 @@ const personalityChoices = [
 	{
 		question: '선호하는 여행 추억은?',
 		choice1: {
-			id: 5,
+			id: 15,
 			name: '기념품(사진)',
 			image_url: '/images/personality-testing/souvenir.svg'
 		},
 		choice2: {
-			id: 6,
+			id: 16,
 			name: '경험(레저활동)',
 			image_url: '/images/personality-testing/experience.svg'
 		}
