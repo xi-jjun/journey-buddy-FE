@@ -63,6 +63,19 @@ const submitSignUp = async (formData) => {
 		return response.data;
 	}
 };
+
+const showProfileImageWhenSelectPicture = async () => {
+	const profileImage = document.getElementById("sign-up-input-profile-img");
+	const imgShowArea = document.getElementById("show-profile-image");
+	const image = profileImage.files[0]
+
+	const fileReader = new FileReader();
+	fileReader.onload = (img) => {
+		imgShowArea.src = img.target.result;
+	}
+
+	fileReader.readAsDataURL(image);
+};
 </script>
 
 <template>
@@ -97,10 +110,10 @@ const submitSignUp = async (formData) => {
 		<div class="input-form">
 			<label>프로필 이미지</label>
 			<div class="profile-image-icons">
-				<img src="/images/sign-up/profile_default_img_icon_sign_up_page.svg" class="profile-image-icon"/>
+				<img id="show-profile-image" src="/images/sign-up/profile_default_img_icon_sign_up_page.svg" class="profile-image-icon"/>
 				<img src="/images/sign-up/modify_icon_sign_up_page.svg" class="profile-image-modify-icon" @click="$refs.uploadProfileImage.click()"/>
 			</div>
-			<input type="file" id="sign-up-input-profile-img" ref="uploadProfileImage" accept="image/*" style="display: none"/>
+			<input type="file" id="sign-up-input-profile-img" ref="uploadProfileImage" accept="image/*" style="display: none" @change="showProfileImageWhenSelectPicture"/>
 		</div>
 
 		<button class="sign-up-page-submit-btn" @click="signUpSubmitBtnClick">회원가입</button>
@@ -179,6 +192,7 @@ const submitSignUp = async (formData) => {
 	margin-top: 12px;
   width: 64px;
   height: 64px;
+	border-radius: 50%;
 }
 
 .profile-image-modify-icon {
