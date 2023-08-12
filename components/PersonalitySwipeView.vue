@@ -1,3 +1,10 @@
+<script setup>
+import { useSwiper } from 'swiper/vue';
+
+const swiper = useSwiper();
+const { personalityChoiceComponent } = defineProps(['personality-choice-component']);
+</script>
+
 <template>
 	<section class="partial-personality-choice-component">
 		<div class="personality-component-logo">
@@ -10,25 +17,21 @@
 		</div>
 
 		<div class="personality-component-choice">
-			<div class="choice1" @click="$emit('clickPersonalityId', { selectedId: personalityChoiceComponent.choice1.id, name: personalityChoiceComponent.choice1.name })">
+			<div class="choice1" @click="$emit('clickPersonalityId', { selectedId: personalityChoiceComponent.choice1.id, name: personalityChoiceComponent.choice1.name }); swiper.slideNext();">
 				<span>{{ personalityChoiceComponent.choice1.name }}</span>
 				<img :src="personalityChoiceComponent.choice1.image_url" class="choice1-image">
 			</div>
-			<div class="choice2" @click="$emit('clickPersonalityId', { selectedId: personalityChoiceComponent.choice2.id, name: personalityChoiceComponent.choice2.name })">
+			<div class="choice2" @click="$emit('clickPersonalityId', { selectedId: personalityChoiceComponent.choice2.id, name: personalityChoiceComponent.choice2.name }); swiper.slideNext();">
 				<span>{{ personalityChoiceComponent.choice2.name }}</span>
 				<img :src="personalityChoiceComponent.choice2.image_url" class="choice2-image">
 			</div>
 		</div>
 		
-		<div class="personality-component-next-arrow">
-			<img src="/images/personality-testing/next_arrow.svg">
-		</div>
+<!--		<div class="personality-component-next-arrow" @click="swiper.slideNext();">-->
+<!--			<img src="/images/personality-testing/next_arrow.svg" class="next-arrow-img">-->
+<!--		</div>-->
 	</section>
 </template>
-
-<script setup>
-const {personalityChoiceComponent} = defineProps(['personality-choice-component']);
-</script>
 
 <style scoped lang="css">
 .partial-personality-choice-component {
@@ -73,11 +76,19 @@ const {personalityChoiceComponent} = defineProps(['personality-choice-component'
   margin: 10px;
 }
 
+.choice1:active {
+	background-color: #ff3167;
+}
+
 .choice2 {
   width: 100%;
   border-radius: 31px;
   background-color: #76A4FF;
   margin: 10px;
+}
+
+.choice2:active {
+  background-color: #4684ff;
 }
 
 .choice1, .choice2 {
@@ -116,6 +127,10 @@ const {personalityChoiceComponent} = defineProps(['personality-choice-component'
 	height: 56px;
 	border-radius: 50%;
 	background-color: #1D364B;
+}
+
+.personality-component-next-arrow:active {
+	background-color: #0e4872;
 }
 
 </style>
