@@ -12,7 +12,7 @@
 			<img :src="tourComponent.firstimage">
 		</div>
 		<div class="travel-item-description">
-			<span>지역이름</span>
+			<span>{{ tourComponent.addr1.split(' ')[0] }}</span>
 			<span>·</span>
 			<span>{{ (tourComponent.dist / 1000).toFixed(2) }} km</span>
 		</div>

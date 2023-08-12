@@ -1,16 +1,19 @@
+import axios from "axios";
+
 const userApi = {
 	async getUserDetail(userId, token) {
 		const config = useRuntimeConfig();
-		const { code, user } = await $fetch(`/api/v1/users/${userId}`, {
-			baseURL: config.public.API_BASE_URL,
-			headers: { Authorization: token },
-		});
+		try {
+			const { data } = await axios.get(`/api/v1/users/${userId}`, {
+				baseURL: config.public.API_BASE_URL,
+				headers: { Authorization: token, 'Access-Control-Allow-Origin': '*', 'ngrok-skip-browser-warning': '123' },
+			});
 
-		if (code === 200) {
-			return user;
+			return data;
+		} catch (error) {
+			console.log("fail getUserDetail by ", error);
+			return error.response.data;
 		}
-
-		return {};
 	},
 }
 

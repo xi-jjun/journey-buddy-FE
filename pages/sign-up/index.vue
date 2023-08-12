@@ -53,7 +53,8 @@ const submitSignUp = async (formData) => {
 		const { data } = await axios.post(`${config.public.API_BASE_URL}/api/v1/users`, formData, {
 			headers: {
 				'Content-Type': 'multipart/form-data',
-				'Access-Control-Allow-Origin': '*'
+				'Access-Control-Allow-Origin': '*',
+				'ngrok-skip-browser-warning': '123',
 			}
 		});
 

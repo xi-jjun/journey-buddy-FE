@@ -6,7 +6,10 @@ export default defineNuxtConfig({
             title: 'Journey-Buddy',
             meta: [
                 {charset: 'utf-8'},
-                {name: 'viewport', content: 'width=device-width, initial-scale=1.0, user-scalable=no'}
+                {name: 'viewport', content: 'width=device-width, initial-scale=1.0, user-scalable=no'},
+                {name: 'description', content: 'AI동행 서비스 져니버디입니다.'},
+                {property: 'og:description', content: '홀로 여행족들을 위한 AI 여행 동행 서비스! 져니버디입니다.'},
+                {property: 'og:image', content: 'https://journey-buddy-bucket-local.s3.ap-northeast-2.amazonaws.com/journey-buddy-logo.png'},
             ]
         }
     },
@@ -15,13 +18,10 @@ export default defineNuxtConfig({
         port: 5001
     },
     runtimeConfig: {
-        // The private keys which are only available within server-side
-        apiTestSecret: "123",
         // Keys within public, will be also exposed to the client-side
         public: {
             API_BASE_URL: process.env.API_BASE_URL,
             KAKAOMAP_API_KEY: process.env.KAKAOMAP_API_KEY,
-            TOUR_API_SECRET_KEY: process.env.TOUR_API_SECRET_KEY
         }
     }
 })
