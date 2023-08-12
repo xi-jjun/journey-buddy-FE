@@ -13,7 +13,10 @@ const totalJourneyCountFromAllUsers = 1430;
 
 let userDetailInfo = ref(null); // 사용자 정보 객체
 const tourListByLocation = ref(null); // tour api 를 통한 관광지 객체 리스트
-const userTokenFromLocalStorage = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY); // user token
+let userTokenFromLocalStorage;
+if (nuxtStorage.localStorage) {
+	userTokenFromLocalStorage = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY); // user token
+}
 
 onMounted(async () => {
 	const coords = await tourApi.getCurrentLocation();
