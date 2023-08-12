@@ -41,7 +41,7 @@ const signUpSubmitBtnClick = async () => {
 	const result = await submitSignUp(formData);
 	if (result.code === 200) {
 		nuxtStorage.localStorage.setData(constant.LOCAL_STORAGE_USER_TOKEN_KEY, result.token, 24, 'h');
-		navigateTo('/login');
+		navigateTo('/sign-up/complete');
 	}
 	signUpError = '회원가입에 실패하셨습니다. 닉네임이 겹치지 않는지 확인해주세요';
 };
