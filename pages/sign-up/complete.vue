@@ -11,7 +11,7 @@
 		</div>
 	</section>
 
-	<button class="sign-up-complete-page-start-btn">시작하기</button>
+	<button class="sign-up-complete-page-start-btn" @click="navigateTo('/')">시작하기</button>
 </template>
 
 <script>
