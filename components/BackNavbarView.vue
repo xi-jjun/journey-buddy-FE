@@ -1,15 +1,14 @@
+<script setup>
+const { navbarTitle } = defineProps(['navbar-title']);
+</script>
+
 <template>
 	<header class="back-navbar-view">
-		<img src="/images/login/back_icon_navbar.svg">
+		<img src="/images/login/back_icon_navbar.svg" @click="$router.go(-1)">
 
 		<span>{{ navbarTitle }}</span>
   </header>
 </template>
-
-<script setup>
-const {navbarTitle} = defineProps(['navbar-title']);
-
-</script>
 
 <style scoped lang="css">
 .back-navbar-view {
