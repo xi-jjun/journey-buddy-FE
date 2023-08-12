@@ -74,7 +74,7 @@ const journeyApi = {
 		const config = useRuntimeConfig();
 		try {
 			const { data } = await axios.post(`${config.public.API_BASE_URL}/api/v1/journeys`, { gender: gender }, {
-				headers: { Authorization: token, }
+				headers: { Authorization: token, 'Access-Control-Allow-Origin': '*' }
 			});
 			return data;
 		} catch (error) {

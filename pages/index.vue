@@ -13,7 +13,10 @@ const totalJourneyCountFromAllUsers = 1430;
 
 let userDetailInfo = ref(null); // 사용자 정보 객체
 const tourListByLocation = ref(null); // tour api 를 통한 관광지 객체 리스트
-const userTokenFromLocalStorage = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY); // user token
+let userTokenFromLocalStorage;
+if (nuxtStorage.localStorage) {
+	userTokenFromLocalStorage = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY); // user token
+}
 
 onMounted(async () => {
 	const coords = await tourApi.getCurrentLocation();
@@ -38,11 +41,13 @@ if (userTokenFromLocalStorage) {
 		navigateTo('/login');
 	}
 
-	userDetailInfo = await userApi.getUserDetail(userId, userTokenFromLocalStorage);
-	if (Object.keys(userDetailInfo).length === 0) {
+	const result = await userApi.getUserDetail(userId, userTokenFromLocalStorage);
+
+	if (result.code !== 200) {
 		// 서버에서 값을 못 받아 왔다면, 로그인 화면으로 이동 (어차피 로그인된 상태라면, 메인 화면으로 다시 리다이렉트 됨)
 		navigateTo('/login');
 	}
+	userDetailInfo = result.user;
 }
 
 const tabClickEvent = async (event) => {
