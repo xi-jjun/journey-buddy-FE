@@ -14,6 +14,18 @@ let userDetailInfo = ref(null); // 사용자 정보 객체
 const tourListByLocation = ref(null); // tour api 를 통한 관광지 객체 리스트
 const userTokenFromLocalStorage = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY); // user token
 
+onMounted(async () => {
+	const coords = await tourApi.getCurrentLocation();
+	const searchParams = {
+		lat: coords.lat,
+		lng: coords.lng,
+		radius: 2000,
+		tour_content_type_id: 12, // 관광타입(12:관광지, 14:문화시설, 15:축제공연행사, 25:여행코스, 28:레포츠, 32:숙박, 38:쇼핑, 39:음식점) ID
+	};
+
+	tourListByLocation.value = await tourApi.getTourListByLocation(searchParams);
+});
+
 if (userTokenFromLocalStorage) {
 	const userTokenPayload = parseJwt(userTokenFromLocalStorage); // user_id, email, expired_at
 	const userId = userTokenPayload['user_id'];
@@ -31,21 +43,6 @@ if (userTokenFromLocalStorage) {
 		navigateTo('/login');
 	}
 }
-
-
-onMounted(() => {
-	window.onload = async () => {
-		const coords = await tourApi.getCurrentLocation();
-		const searchParams = {
-			lat: coords.lat,
-			lng: coords.lng,
-			radius: 2000,
-			tour_content_type_id: 12, // 관광타입(12:관광지, 14:문화시설, 15:축제공연행사, 25:여행코스, 28:레포츠, 32:숙박, 38:쇼핑, 39:음식점) ID
-		};
-
-		tourListByLocation.value = await tourApi.getTourListByLocation(searchParams);
-	};
-});
 
 const tabClickEvent = async (event) => {
 	const defaultTabClass = ['travel-tab'];
