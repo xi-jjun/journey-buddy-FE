@@ -5,6 +5,7 @@ import nuxtStorage from 'nuxt-storage';
 import constant from '~/service/constant';
 import userApi from '~/service/userApi';
 import parseJwt from "~/service/jwtParser";
+import userPersonalityTestingApi from "~/service/userPersonalityTestingApi";
 
 const userCurrentJourney = '현재 진행중인 여행 타이틀';
 const totalJourneyCount = 0;
@@ -74,6 +75,31 @@ const tabClickEvent = async (event) => {
 	tourListByLocation.value = await tourApi.getTourListByLocation(searchParams);
 };
 
+const startNewJourneyBtnClick = async () => {
+	// 1. 토큰이 없으면 --> 로그인 화면으로 이동
+	if (!userTokenFromLocalStorage) {
+		navigateTo('/login');
+	}
+	// 2. 토큰이 존재할 때,
+	const userTokenPayload = parseJwt(userTokenFromLocalStorage); // user_id, email, expired_at
+	const userId = userTokenPayload['user_id'];
+	const result = await userPersonalityTestingApi.getUserPersonalityTestResult(userId, userTokenFromLocalStorage);
+	if (result.code !== 200) {
+		console.log("error response from startNewJourneyBtnClick");
+		return;
+	}
+
+	const userPersonalities = result.user_personalities;
+	// 		2-1. 유저 성향 검사가 진행되지 않았다면, --> 유저 성향 테스트 페이지로 이동
+	if (userPersonalities.length === 0) {
+		navigateTo('/define-yourself');
+	}
+	// TODO : journey API 개발할 때 고려해야함.
+	//		2-2. 유저 성향 검사 결과가 존재할 때,
+	//				 1) 현재 진행중인 여행이 존재하면, --> 해당 여행의 채팅방으로 이동
+	//				 2) 현재 진행중인 여행이 없다면, --> 새로운 여행 시작
+};
+
 </script>
 
 <template>
@@ -115,7 +141,7 @@ const tabClickEvent = async (event) => {
 				<button>AI와 대화하기</button>
 				<img src="/images/ai_default_profile_main_layout.svg"/>
 			</div>
-			<button class="travel-start-btns-new-journey">새로운 여행 시작하기</button>
+			<button class="travel-start-btns-new-journey" @click="startNewJourneyBtnClick">새로운 여행 시작하기</button>
 		</div>
 
 		<div class="main-layout-banner">
@@ -306,6 +332,10 @@ const tabClickEvent = async (event) => {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.travel-start-btns-new-journey:active {
+	background-color: #528dff;
 }
 
 .main-layout-banner {
