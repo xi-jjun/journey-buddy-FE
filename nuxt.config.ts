@@ -6,7 +6,10 @@ export default defineNuxtConfig({
             title: 'Journey-Buddy',
             meta: [
                 {charset: 'utf-8'},
-                {name: 'viewport', content: 'width=device-width, initial-scale=1.0, user-scalable=no'}
+                {name: 'viewport', content: 'width=device-width, initial-scale=1.0, user-scalable=no'},
+                {name: 'description', content: 'AI동행 서비스 져니버디입니다.'},
+                {property: 'og:description', content: '홀로 여행족들을 위한 AI 여행 동행 서비스! 져니버디입니다.'},
+                {property: 'og:image', content: 'https://journey-buddy-bucket-local.s3.ap-northeast-2.amazonaws.com/journey-buddy-logo.png'},
             ]
         }
     },
