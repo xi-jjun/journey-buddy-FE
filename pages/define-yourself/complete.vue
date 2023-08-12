@@ -1,3 +1,37 @@
+<script setup>
+import nuxtStorage from "nuxt-storage";
+import constant from "~/service/constant";
+import journeyApi from "~/service/journeyApi";
+
+const userTokenFromLocalStorage = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY); // user token
+onMounted(() => {
+	if (!userTokenFromLocalStorage) {
+		navigateTo('/login');
+	}
+});
+
+const maleBuddyBtnClicked = async () => {
+	console.log("maleBuddyBtnClicked")
+	const result = await journeyApi.startJourney(1, userTokenFromLocalStorage);
+	if (result.code !== 200) {
+		console.log("error response from maleBuddyBtnClicked");
+		return;
+	}
+	navigateTo('/journey');
+};
+
+const womanBuddyBtnClicked = async () => {
+	console.log("womanBuddyBtnClicked")
+	const result = await journeyApi.startJourney(2, userTokenFromLocalStorage);
+	if (result.code !== 200) {
+		console.log("error response from womanBuddyBtnClicked");
+		return;
+	}
+	navigateTo('/journey');
+};
+
+</script>
+
 <template>
   <section class="personality-testing-complete-page">
     <div class="testing-complete-page-logo">
@@ -18,15 +52,11 @@
     </div>
 
     <div class="testing-complete-page-gender-btns">
-      <button type="button" class="man-buddy-btn">남성</button>
-      <button type="button" class="woman-buddy-btn">여성</button>
+      <button type="button" class="man-buddy-btn" @click="maleBuddyBtnClicked">남성</button>
+      <button type="button" class="woman-buddy-btn" @click="womanBuddyBtnClicked">여성</button>
     </div>
   </section>
 </template>
-
-<script setup>
-
-</script>
 
 <style scoped lang="css">
 .personality-testing-complete-page {
@@ -84,7 +114,15 @@
   background-color: #76A4FF;
 }
 
+.man-buddy-btn:active {
+  background-color: #4684ff;
+}
+
 .woman-buddy-btn {
   background-color: #F85D87;
+}
+
+.woman-buddy-btn:active {
+  background-color: #ff3167;
 }
 </style>

@@ -1,3 +1,15 @@
+<script setup>
+import nuxtStorage from "nuxt-storage";
+import constant from "~/service/constant";
+
+const userTokenFromLocalStorage = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY); // user token
+onMounted(() => {
+	if (!userTokenFromLocalStorage) {
+		navigateTo('/login');
+	}
+});
+</script>
+
 <template>
 	<section class="personality-choice-start-page">
     <div class="start-page-logo">
@@ -18,10 +30,6 @@
     </NuxtLink>
   </section>
 </template>
-
-<script setup>
-
-</script>
 
 <style scoped lang="css">
 .personality-choice-start-page {
@@ -69,6 +77,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.start-page-start-btn:active {
+  background-color: #528dff;
 }
 
 </style>
