@@ -1,10 +1,15 @@
 <script setup>
 const buddyName = '킴AI';
 
+const touchScreen = () => {
+	const journeyId = 1;
+	navigateTo(`/chat?journey_id=${journeyId}`);
+};
+
 </script>
 
 <template>
-  <section class="journey-start-page">
+  <section class="journey-start-page" @click="touchScreen">
 		<img src="/images/login/jb_logo_login_page.svg" alt="journey-buddy logo" class="journey-buddy-logo"/>
 
 		<img src="/images/sign-up/profile_default_img_icon_sign_up_page.svg" alt="ai buddy profile image" class="ai-buddy-profile-image"/>
