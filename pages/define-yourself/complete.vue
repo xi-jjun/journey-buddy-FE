@@ -17,7 +17,7 @@ const maleBuddyBtnClicked = async () => {
 		console.log("error response from maleBuddyBtnClicked");
 		return;
 	}
-	navigateTo('/journey');
+	navigateTo(`/journey/ready?journeyId=${result.journey_id}`);
 };
 
 const womanBuddyBtnClicked = async () => {
@@ -27,7 +27,7 @@ const womanBuddyBtnClicked = async () => {
 		console.log("error response from womanBuddyBtnClicked");
 		return;
 	}
-	navigateTo('/journey');
+	navigateTo(`/journey/ready?journeyId=${result.journey_id}`);
 };
 
 </script>
