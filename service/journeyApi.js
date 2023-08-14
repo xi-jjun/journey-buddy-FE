@@ -82,6 +82,18 @@ const journeyApi = {
 			return error.response.data;
 		}
 	},
+	async namingJourneyTitle(journeyId, title, token) {
+		const config = useRuntimeConfig();
+		try {
+			const { data } = await axios.patch(`${config.public.API_BASE_URL}/api/v1/journeys/${journeyId}`, { title: title }, {
+				headers: { Authorization: token, 'Access-Control-Allow-Origin': '*' }
+			});
+			return data;
+		} catch (error) {
+			console.log("fail namingJourneyTitle by ", error);
+			return error.response.data;
+		}
+	},
 }
 
 export default journeyApi;
