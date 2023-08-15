@@ -86,11 +86,23 @@ const journeyApi = {
 		const config = useRuntimeConfig();
 		try {
 			const { data } = await axios.patch(`${config.public.API_BASE_URL}/api/v1/journeys/${journeyId}`, { title: title }, {
-				headers: { Authorization: token, 'Access-Control-Allow-Origin': '*' }
+				headers: { Authorization: token, 'Access-Control-Allow-Origin': '*', 'ngrok-skip-browser-warning': '123' }
 			});
 			return data;
 		} catch (error) {
 			console.log("fail namingJourneyTitle by ", error);
+			return error.response.data;
+		}
+	},
+	async getBuddyDetailByJourneyId(journeyId, token) {
+		const config = useRuntimeConfig();
+		try {
+			const { data } = await axios.get(`${config.public.API_BASE_URL}/api/v1/journeys/${journeyId}/buddy`, {
+				headers: { Authorization: token, 'Access-Control-Allow-Origin': '*', 'ngrok-skip-browser-warning': '123' }
+			});
+			return data;
+		} catch (error) {
+			console.log("fail getBuddyDetailByJourneyId by ", error);
 			return error.response.data;
 		}
 	},
