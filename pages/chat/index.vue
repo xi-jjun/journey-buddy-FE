@@ -1,35 +1,3 @@
-<template>
-	<section class="chat-page">
-		<header class="chat-page-navbar">
-			<img src="/images/login/back_icon_navbar.svg" class="chat-page-back-btn">
-		</header>
-
-		<div class="journey-info">
-			<span class="journey-info-title">나의 힐링을 위한 제주도</span>
-			<span class="now-datetime">{{ displayToday }}</span>
-		</div>
-
-		<section class="chat-text-list-area">
-			<ChatView v-for="chat in chats" :chat-component="chat">
-			</ChatView>
-		</section>
-
-		<section class="chat-page-bottom-side">
-			<div v-show="nowQuest.existed" class="ongoing-quest-notice">
-				<div class="quest-status">진행 중</div>
-				<span class="quest-title">{{ nowQuest.title }}</span>
-			</div>
-
-			<div class="chat-page-input-functions">
-				<img src="/images/chat/camera.svg">
-				<img src="/images/chat/live_record.svg">
-				<textarea></textarea>
-				<img src="/images/chat/send_btn.png" class="send-btn">
-			</div>
-		</section>
-	</section>
-</template>
-
 <script setup>
 import ChatView from "~/components/ChatView.vue";
 import chatApi from "~/service/chatApi";
@@ -49,7 +17,74 @@ chatApi.all(response => {
 	chats = response.chats;
 });
 
+const sendChatBtnClick = async () => {
+
+};
+
+const showCameraImagePreview = async () => {
+	const previewSection = document.getElementById("image-preview-section");
+	const cameraImage = document.getElementById("cameraImage");
+	const imageShowArea = document.getElementById("fileUploadPreviewArea");
+	if (previewSection.className === 'hidden') {
+		previewSection.className = '';
+	}
+
+	const image = cameraImage.files[0];
+
+	const fileReader = new FileReader();
+	fileReader.onload = (img) => {
+		imageShowArea.src = img.target.result;
+	};
+
+	fileReader.readAsDataURL(image);
+};
+
+const closeCameraImagePreview = async () => {
+	const previewSection = document.getElementById("image-preview-section");
+	const cameraImage = document.getElementById("cameraImage");
+	previewSection.className = 'hidden';
+	cameraImage.value = ''; // input file reset
+};
+
 </script>
+
+<template>
+	<section class="chat-page">
+		<header class="chat-page-navbar">
+			<img src="/images/login/back_icon_navbar.svg" class="chat-page-back-btn">
+		</header>
+
+		<div class="journey-info">
+			<span class="journey-info-title">나의 힐링을 위한 제주도</span>
+			<span class="now-datetime">{{ displayToday }}</span>
+		</div>
+
+		<section class="chat-text-list-area">
+			<ChatView v-for="chat in chats" :chat-component="chat">
+			</ChatView>
+		</section>
+
+		<section class="chat-page-bottom-side">
+			<div id="image-preview-section" class="hidden">
+				<button class="image-preview-close-btn" @click="closeCameraImagePreview">&times;</button>
+				<img id="fileUploadPreviewArea"/>
+			</div>
+
+			<div v-if="nowQuest.existed" class="ongoing-quest-notice">
+				<div class="quest-status">진행 중</div>
+				<span class="quest-title">{{ nowQuest.title }}</span>
+			</div>
+
+			<div class="chat-page-input-functions">
+				<img src="/images/chat/camera.svg" @click="$refs.liveCamera.click()">
+				<input type="file" ref="liveCamera" id="cameraImage" name="camera" capture="camera" accept="image/*" style="display: none;" @change="showCameraImagePreview" />
+				<img src="/images/chat/live_record.svg">
+				<textarea id="chat-input-area"></textarea>
+				<img src="/images/chat/send_btn.png" class="send-btn" @click="sendChatBtnClick">
+			</div>
+		</section>
+	</section>
+</template>
 
 <style scoped lang="css">
 .chat-page {
@@ -170,5 +205,56 @@ textarea {
 
 textarea:focus {
 	outline: none;
+}
+
+#fileUploadPreviewArea {
+	height: 25vh;
+	width: 40vw;
+	border-radius: 12px;
+}
+
+#image-preview-section {
+	text-align: center;
+	padding: 8px 0;
+	width: 100%;
+
+	position: relative;
+}
+
+#image-preview-section::before {
+	position: absolute;
+	content: "";
+
+	text-align: center;
+	width: 100%;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 28.5vh;
+	background-color: black;
+	opacity: 0.5;
+	z-index: -1;
+}
+
+.image-preview-close-btn {
+	position: absolute;
+	display: flex;
+	align-items: center;
+	font-size: 35px;
+	top: 0;
+	right: 6vw;
+
+	color: white;
+	background: none;
+	border: none;
+}
+
+.image-preview-close-btn:active {
+	color: red;
+	font-size: 45px;
+}
+
+.hidden {
+	display: none;
 }
 </style>
