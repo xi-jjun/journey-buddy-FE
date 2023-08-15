@@ -119,6 +119,18 @@ const journeyApi = {
 			return error.response.data;
 		}
 	},
+	async getCurrentUserJourney(token) {
+		const config = useRuntimeConfig();
+		try {
+			const { data } = await axios.get(`${config.public.API_BASE_URL}/api/v1/journeys/current`, {
+				headers: { Authorization: token, 'Access-Control-Allow-Origin': '*', 'ngrok-skip-browser-warning': '123' }
+			});
+			return data;
+		} catch (error) {
+			console.log("fail getCurrentUserJourney by ", error);
+			return error.response.data;
+		}
+	},
 }
 
 export default journeyApi;

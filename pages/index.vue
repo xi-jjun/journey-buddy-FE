@@ -6,6 +6,7 @@ import constant from '~/service/constant';
 import userApi from '~/service/userApi';
 import parseJwt from "~/service/jwtParser";
 import userPersonalityTestingApi from "~/service/userPersonalityTestingApi";
+import journeyApi from "~/service/journeyApi";
 
 const userCurrentJourney = '현재 진행중인 여행 타이틀';
 const totalJourneyCount = 0;
@@ -81,11 +82,12 @@ const tabClickEvent = async (event) => {
 };
 
 const startNewJourneyBtnClick = async () => {
-	// 1. 토큰이 없으면 --> 로그인 화면으로 이동
+	// 토큰이 없으면 --> 로그인 화면으로 이동
 	if (!userTokenFromLocalStorage) {
 		navigateTo('/login');
+		return;
 	}
-	// 2. 토큰이 존재할 때,
+	// 토큰이 존재할 때,
 	const userTokenPayload = parseJwt(userTokenFromLocalStorage); // user_id, email, expired_at
 	const userId = userTokenPayload['user_id'];
 	const result = await userPersonalityTestingApi.getUserPersonalityTestResult(userId, userTokenFromLocalStorage);
@@ -95,14 +97,32 @@ const startNewJourneyBtnClick = async () => {
 	}
 
 	const userPersonalities = result.user_personalities;
-	// 		2-1. 유저 성향 검사가 진행되지 않았다면, --> 유저 성향 테스트 페이지로 이동
+	// 	유저 성향 정보가 존재하지 않을 때, 유저 성향 테스트 페이지로 이동
 	if (userPersonalities.length === 0) {
 		navigateTo('/define-yourself');
 	}
-	// TODO : journey API 개발할 때 고려해야함.
-	//		2-2. 유저 성향 검사 결과가 존재할 때,
-	//				 1) 현재 진행중인 여행이 존재하면, --> 해당 여행의 채팅방으로 이동
-	//				 2) 현재 진행중인 여행이 없다면, --> 새로운 여행 시작
+
+	const userOngoingJourneyResult = await journeyApi.getCurrentUserJourney(userTokenFromLocalStorage);
+	if (userOngoingJourneyResult.code !== 200) {
+		console.log("error response from startNewJourneyBtnClick - userOngoingJourneyResult");
+		return;
+	}
+
+	const userOngoingJourney = userOngoingJourneyResult['journey'];
+	// 준비중인 여행이 이미 존재하면, 성별은 이미 골랐다는 뜻이기에 여행 타이틀 입력 페이지로 이동
+	if (userOngoingJourney['status'] === 1) {
+		navigateTo(`/journey/ready?journeyId=${userOngoingJourney['id']}`);
+		return;
+	}
+
+	// 여행중인 여행이 이미 존재하면, 초기 세팅 끝나고 현재 채팅 중이라는 뜻이기에 채팅방으로 이동
+	if (userOngoingJourney['status'] === 2) {
+		navigateTo(`/chat?journeyId=${userOngoingJourney['id']}`);
+		return;
+	}
+
+	// 아무것도 존재하지 않을 때, 새로운 여행을 생성하기 위해서 AI 성별 고르는 페이지로 이동
+	navigateTo("/define-yourself/complete?from=main_page");
 };
 
 </script>
