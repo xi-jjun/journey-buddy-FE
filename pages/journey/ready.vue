@@ -1,9 +1,33 @@
 <script setup>
+import nuxtStorage from "nuxt-storage";
+import constant from "~/service/constant";
+import journeyApi from "~/service/journeyApi";
+
+const route = useRoute();
+const userTokenFromLocalStorage = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY);
+onMounted(() => {
+	if (!userTokenFromLocalStorage) {
+		navigateTo('/login');
+	}
+});
+
+const journeyTitleSubmit = async () => {
+	const journeyId = route.query['journeyId'];
+	const title = document.getElementById("journey-title").value;
+
+	const result = await journeyApi.namingJourneyTitle(journeyId, title, userTokenFromLocalStorage);
+	if (result.code !== 200) {
+		console.log("error response from journeyTitleSubmit");
+		return;
+	}
+
+	navigateTo(`/journey/start?journeyId=${journeyId}`);
+};
 
 </script>
 
 <template>
-	<BackNavbarView :navbar-title="``">
+	<BackNavbarView :navbar-title="``" @click="$router.go(-1)">
 
 	</BackNavbarView>
 	<section class="journey-create-page">
@@ -16,7 +40,7 @@
 			<input id="journey-title" class="form-title-input" placeholder="여행 타이틀을 입력하세요."/>
 		</div>
 
-		<button class="form-title-submit" @click="">확인</button>
+		<button class="form-title-submit" @click="journeyTitleSubmit">확인</button>
 	</section>
 </template>
 
