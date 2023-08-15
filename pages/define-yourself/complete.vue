@@ -3,6 +3,8 @@ import nuxtStorage from "nuxt-storage";
 import constant from "~/service/constant";
 import journeyApi from "~/service/journeyApi";
 
+const route = useRoute();
+
 const userTokenFromLocalStorage = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY); // user token
 onMounted(() => {
 	if (!userTokenFromLocalStorage) {
@@ -38,13 +40,16 @@ const womanBuddyBtnClicked = async () => {
       <img src="/images/login/jb_logo_login_page.svg">
     </div>
 
-    <div class="testing-complete-page-completed">
+    <div v-if="route.query['from'] !== 'main_page'" class="testing-complete-page-completed">
       <img src="/images/personality-testing/left_cong.svg">
       <div class="completed-test-complete-text">
         <span>여행 성향</span>
         <span>검사완료</span>
       </div>
       <img src="/images/personality-testing/right_cong.svg">
+    </div>
+    <div v-if="route.query['from'] === 'main_page'" class="from-main-page">
+      여행을 떠나요!
     </div>
 
     <div class="testing-complete-page-choice-notice">
@@ -124,5 +129,12 @@ const womanBuddyBtnClicked = async () => {
 
 .woman-buddy-btn:active {
   background-color: #ff3167;
+}
+
+.from-main-page {
+  margin-top: 2rem;
+  color: #262C31;
+  font-weight: bold;
+  font-size: 28px;
 }
 </style>
