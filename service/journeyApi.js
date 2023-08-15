@@ -106,6 +106,19 @@ const journeyApi = {
 			return error.response.data;
 		}
 	},
+	async setJourneyBuddyInitSettings(journeyId, token) {
+		const config = useRuntimeConfig();
+		try {
+			const requestData = {};
+			const { data } = await axios.post(`${config.public.API_BASE_URL}/api/v1/journeys/${journeyId}/init-buddy`, requestData, {
+				headers: { Authorization: token, 'Access-Control-Allow-Origin': '*', 'ngrok-skip-browser-warning': '123' }
+			});
+			return data;
+		} catch (error) {
+			console.log("fail setJourneyBuddyInitSettings by ", error);
+			return error.response.data;
+		}
+	},
 }
 
 export default journeyApi;
