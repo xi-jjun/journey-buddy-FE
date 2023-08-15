@@ -15,7 +15,13 @@ if (result.code !== 200) {
 	buddyDetailInfo = result.buddy;
 }
 
-const touchScreen = () => {
+const touchScreen = async () => {
+	const result = await journeyApi.setJourneyBuddyInitSettings(journeyId, userTokenFromLocalStorage);
+	if (result.code !== 200) {
+		console.log("error response from touchScreen");
+		return;
+	}
+
 	navigateTo(`/chat?journey_id=${journeyId}`);
 };
 
