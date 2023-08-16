@@ -31,7 +31,7 @@ const loginBtnClick = async () => {
 
 <template>
 	<section class="login-page-jb-logo">
-		<img src="/images/login/jb_logo_login_page.svg" alt="jb-login-logo">
+		<img src="/images/login/jb_logo_login_page.svg" alt="jb-login-logo" @click="navigateTo('/')">
 	</section>
 
 	<section class="login-page-first-journey-buddy">

@@ -7,16 +7,27 @@ import userApi from '~/service/userApi';
 import parseJwt from "~/service/jwtParser";
 import userPersonalityTestingApi from "~/service/userPersonalityTestingApi";
 import journeyApi from "~/service/journeyApi";
+import MenuView from "~/components/MenuView.vue";
 
-const userCurrentJourney = '현재 진행중인 여행 타이틀';
-const totalJourneyCount = 0;
-const totalJourneyCountFromAllUsers = 1430;
+let userCurrentJourney = '현재 진행중인 여행 타이틀';
+let totalJourneyCount = 0;
+const totalJourneyCntResult = await journeyApi.getTotalJourneyCount();
+const totalJourneyCountFromAllUsers = totalJourneyCntResult['journey_count'];
 
 let userDetailInfo = ref(null); // 사용자 정보 객체
 const tourListByLocation = ref(null); // tour api 를 통한 관광지 객체 리스트
 let userTokenFromLocalStorage;
 if (nuxtStorage.localStorage) {
 	userTokenFromLocalStorage = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY); // user token
+	const payload = parseJwt(userTokenFromLocalStorage);
+	const userTotalJourneyCntResult = await journeyApi.getTotalUserJourneyCount(payload['user_id']);
+	totalJourneyCount = userTotalJourneyCntResult['journey_count'];
+
+	// 메인 페이지에 현재 진행중인 여행 타이틀 노출 위해 추가
+	const userTravelingJourneyResult = await journeyApi.getCurrentUserJourney(userTokenFromLocalStorage);
+	if (userTravelingJourneyResult.code === 200) {
+		userCurrentJourney = userTravelingJourneyResult['journey']['title'];
+	}
 }
 
 onMounted(async () => {
@@ -125,10 +136,19 @@ const startNewJourneyBtnClick = async () => {
 	navigateTo("/define-yourself/complete?from=main_page");
 };
 
+let showMenu = false;
+const showMenuView = async () => {
+	showMenu = true;
+	console.log("hello")
+};
 </script>
 
 <template>
 	<div id="MainLayout" class="main-layout">
+		<MenuView v-if="showMenu" class="fixed-view">
+
+		</MenuView>
+
 		<div id="nav-bar" class="main-layout-upside">
 			<img src="/images/jb_logo_main_layout.svg" class="upside-logo"/>
 			<img src="/images/menu_btn_main_layout_upside.png" class="upside-menu-btn"/>
@@ -158,12 +178,12 @@ const startNewJourneyBtnClick = async () => {
 			<span v-if="userTokenFromLocalStorage && totalJourneyCount === 0" class="travel-with-journey-buddy-total-count">여행을 떠나요!</span> <!-- 로그인 된 상태 AND 여행 0회 : 여행을 떠나요 문구 출력 -->
 			<span v-if="userTokenFromLocalStorage && totalJourneyCount !== 0" class="travel-with-journey-buddy-total-count">{{ totalJourneyCount }}</span> <!-- 로그인 된 상태 : 해당 유저의 여행 총 횟수 -->
 			<span v-if="!userTokenFromLocalStorage" class="travel-with-journey-buddy-total-count">{{ totalJourneyCountFromAllUsers }}</span> <!-- 로그인 안된 상태 : 모든 유저의 여행 총 횟수 -->
-			<img v-if="userTokenFromLocalStorage" src="/images/go_to_icon_main_layout.svg" alt="goto_journey"/>
+			<img v-if="userTokenFromLocalStorage" src="/images/go_to_icon_main_layout.svg" alt="goto_journey" @click="navigateTo('/journey-history')"/>
 		</div>
 
 		<div class="main-layout-travel-start-btns">
 			<div class="travel-start-btns-chat-with-ai">
-				<button>AI와 대화하기</button>
+				<button @click="startNewJourneyBtnClick">AI와 대화하기</button>
 				<img src="/images/ai_default_profile_main_layout.svg"/>
 			</div>
 			<button class="travel-start-btns-new-journey" @click="startNewJourneyBtnClick">새로운 여행 시작하기</button>
@@ -193,8 +213,11 @@ const startNewJourneyBtnClick = async () => {
 </template>
 
 <style lang="css" scoped>
+.main-layout {
+	position: relative;
+}
+
 .main-layout-upside {
-  margin-top: 20px;
   position: relative;
   width: 100%;
   height: 60px;
@@ -205,10 +228,21 @@ const startNewJourneyBtnClick = async () => {
 
 .main-layout-upside .upside-menu-btn {
   position: absolute;
-  top: 18px;
+  top: 28px;
   right: 15px;
   width: 24px;
   height: 24px;
+}
+
+.upside-logo {
+	margin-top: 20px;
+}
+
+.upside-menu-btn:active {
+	width: 28px;
+	height: 28px;
+	background-color: #778088;
+	border-radius: 8px;
 }
 
 .main-layout-anonymous-welcome, .main-layout-user-welcome {
@@ -438,5 +472,13 @@ const startNewJourneyBtnClick = async () => {
   grid-row-gap: 28px;
   padding-left: 15px;
   padding-right: 15px;
+}
+
+.fixed-view {
+	position: absolute;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	z-index: 1;
 }
 </style>
