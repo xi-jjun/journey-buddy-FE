@@ -131,6 +131,19 @@ const journeyApi = {
 			return error.response.data;
 		}
 	},
+	async getTotalJourneyCount() {
+		const config = useRuntimeConfig();
+		try {
+			const { data } = await axios.get(`${config.public.API_BASE_URL}/api/v1/journeys/count`, {
+				headers: { 'Access-Control-Allow-Origin': '*', 'ngrok-skip-browser-warning': '123' }
+			});
+			console.log("data : ", data);
+			return data;
+		} catch (error) {
+			console.log("fail getCurrentUserJourney by ", error);
+			return error.response.data;
+		}
+	},
 }
 
 export default journeyApi;

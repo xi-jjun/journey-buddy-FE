@@ -10,7 +10,8 @@ import journeyApi from "~/service/journeyApi";
 
 const userCurrentJourney = '현재 진행중인 여행 타이틀';
 const totalJourneyCount = 0;
-const totalJourneyCountFromAllUsers = 1430;
+const totalJourneyCntResult = await journeyApi.getTotalJourneyCount();
+const totalJourneyCountFromAllUsers = totalJourneyCntResult['journey_count'];
 
 let userDetailInfo = ref(null); // 사용자 정보 객체
 const tourListByLocation = ref(null); // tour api 를 통한 관광지 객체 리스트
