@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const contentType = {
 	TEXT: 1, IMAGE: 2, VOICE: 3
 }
@@ -49,6 +51,47 @@ const chatApi = {
 
 		callback({ success: true, chats });
 	},
+	async getAllChats(journeyId, token) {
+		const config = useRuntimeConfig();
+		const searchParams = { journey_id: journeyId, };
+		try {
+			const { data } = await axios.get(`${config.public.API_BASE_URL}/api/v1/chats`, {
+				params: searchParams,
+				headers: { Authorization: token, 'Access-Control-Allow-Origin': '*', 'ngrok-skip-browser-warning': '123' }
+			});
+			return data;
+		} catch (error) {
+			console.log("fail getAllChats by ", error);
+			return error.response.data;
+		}
+	},
+	async sendChat(requestData, token) {
+		const config = useRuntimeConfig();
+		try {
+			const { data } = await axios.post(`${config.public.API_BASE_URL}/api/v1/chats`, requestData, {
+				headers: { Authorization: token, 'Access-Control-Allow-Origin': '*', 'ngrok-skip-browser-warning': '123' }
+			});
+			return data;
+		} catch (error) {
+			console.log("fail sendChat by ", error);
+			return error.response.data;
+		}
+	},
+	// makeChatForShow(result) {
+	// 	console.log("buddy name : ", result.buddy_name);
+	// 	const buddyName = result.buddy_name ? result.buddy_name : '';
+	// 	console.log("buddyName : ", buddyName);
+	// 	return {
+	// 		id: result.id,
+	// 		writer: result.writer,
+	// 		content: result.content,
+	// 		name: buddyName,
+	// 		content_type: 1, // 1: TEXT
+	// 		created_at: result.created_at,
+	// 		lat: result.latitude,
+	// 		lng: result.longitude
+	// 	}
+	// },
 }
 
 export default chatApi;
