@@ -7,6 +7,7 @@ import constant from "~/service/constant";
 import axios from "axios";
 
 let chatContentType = 1; // 1: text, 2: image, 3: voice
+let canUse = true; // true: 사용가능, false: 사용불가
 
 const route = useRoute();
 let userTokenFromLocalStorage;
@@ -16,7 +17,7 @@ if (nuxtStorage.localStorage) {
 let chats = ref('chatList');
 let result = await chatApi.getAllChats(route.query['journeyId'], userTokenFromLocalStorage);
 if (result.code !== 200) {
-	alert("메세지 내역을 가져오는 것에 실패했습니다.");
+	console.log("메세지 내역을 가져오는 것에 실패했습니다.");
 } else {
 	chats = result.chats;
 }
@@ -34,11 +35,18 @@ const displayToday = today.toLocaleDateString("ko-KR");
 
 // TODO : 사용자의 현재 진행중인 퀘스트 가져오기
 const nowQuest = {
-	existed: false,
-	title: '63빌딩 기어서 올라간 후 인증샷'
+	existed: true,
+	statue: 1,
+	title: '현재 받은 퀘스트가 없습니다.'
 }
 
 const sendChatBtnClick = async () => {
+	if (!canUse) return;
+	canUse = false;
+
+	const waitingView = document.getElementById("chat-waiting");
+	waitingView.className = '';
+
 	const location = await tourApi.getCurrentLocation();
 	let requestData = {
 		chat_role: 2, // 1: chat GPT, 2: user
@@ -49,6 +57,7 @@ const sendChatBtnClick = async () => {
 	};
 	if (!location) {
 		alert("위치동의를 해주셔야 이용을 하실 수 있습니다.");
+		window.location.reload(true);
 		return;
 	}
 
@@ -76,6 +85,7 @@ const sendChatBtnClick = async () => {
 
 		const cameraImage = document.getElementById("cameraImage");
 		formData.append('content', cameraImage.files[0]);
+		await closeCameraImagePreview(); // 사진 전송했으면 미리보기 종료
 
 		const result = await submitImageChat(formData);
 		if (result.code !== 200) {
@@ -146,7 +156,7 @@ const closeCameraImagePreview = async () => {
 
 <template>
 	<section class="chat-page">
-		<header class="chat-page-navbar">
+		<header class="chat-page-navbar" @click="$router.go(-1);">
 			<img src="/images/login/back_icon_navbar.svg" class="chat-page-back-btn">
 		</header>
 
@@ -158,6 +168,7 @@ const closeCameraImagePreview = async () => {
 		<section id="chat-conversation" class="chat-text-list-area">
 			<ChatView v-for="chat in chats" :chat-component="chat">
 			</ChatView>
+			<div id="chat-waiting" class="hidden">&#183; &#183; &#183;</div>
 		</section>
 
 		<section class="chat-page-bottom-side">
@@ -167,7 +178,9 @@ const closeCameraImagePreview = async () => {
 			</div>
 
 			<div v-if="nowQuest.existed" class="ongoing-quest-notice">
-				<div class="quest-status">진행 중</div>
+				<div v-if="nowQuest.statue === 1" class="quest-status-waiting">대기 중</div>
+				<div v-if="nowQuest.statue === 2" class="quest-status-ongoing">진행 중</div>
+				<div v-if="nowQuest.statue === 3" class="quest-status-complete">완료</div>
 				<span class="quest-title">{{ nowQuest.title }}</span>
 			</div>
 
@@ -236,6 +249,11 @@ const closeCameraImagePreview = async () => {
   overflow-y: scroll;
 }
 
+#chat-waiting {
+	font-size: 26px;
+	text-align: center;
+}
+
 .chat-page-bottom-side {
   position: fixed;
   left: 0;
@@ -259,7 +277,7 @@ const closeCameraImagePreview = async () => {
   width: 100%;
 }
 
-.quest-status {
+.quest-status-ongoing {
   background-color: red;
   font-weight: bold;
   font-size: 12px;
@@ -268,6 +286,28 @@ const closeCameraImagePreview = async () => {
   text-align: center;
   border-radius: 5px;
   margin-right: 10px;
+}
+
+.quest-status-waiting {
+	background-color: wheat;
+	font-weight: bold;
+	font-size: 12px;
+	color: #778088;
+	padding: 4px 8px;
+	text-align: center;
+	border-radius: 5px;
+	margin-right: 10px;
+}
+
+.quest-status-complete {
+	background-color: greenyellow;
+	font-weight: bold;
+	font-size: 12px;
+	color: white;
+	padding: 4px 8px;
+	text-align: center;
+	border-radius: 5px;
+	margin-right: 10px;
 }
 
 .quest-title {
