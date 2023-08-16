@@ -1,8 +1,9 @@
 <template>
   <div v-if="chatComponent.writer === 1" class="chatting"  :id="`buddy_chat_id_${chatComponent.id}`" tabindex="0">
-		<img src="/images/chat/default_buddy_profile_image_in_chat_page.png">
+		<img class="ai-buddy-profile-image" :src="chatComponent.buddy_profile_image">
+<!--		<img src="/images/chat/default_buddy_profile_image_in_chat_page.png">-->
 		<div class="chat-info">
-			<span class="ai-buddy-name">{{ chatComponent.name }}</span>
+			<span class="ai-buddy-name">{{ chatComponent.buddy_name }}</span>
 			<div v-if="chatComponent.content_type === 1 && !chatComponent.is_quest" class="chat-info-content">
 				{{ chatComponent.content }}
 			</div>
@@ -46,6 +47,13 @@ const { chatComponent } = defineProps(['chat-component']);
 	margin-right: 10px;
 }
 
+.ai-buddy-profile-image {
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	margin-bottom: 10px;
+}
+
 .row-reverse {
 	flex-direction: row-reverse;
 }
@@ -53,6 +61,7 @@ const { chatComponent } = defineProps(['chat-component']);
 .chat-info {
 	display: flex;
 	flex-direction: column;
+	margin: 4px 8px;
 }
 
 .ai-buddy-name {
