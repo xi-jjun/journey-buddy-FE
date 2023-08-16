@@ -2,6 +2,8 @@
 import ChatView from "~/components/ChatView.vue";
 import chatApi from "~/service/chatApi";
 
+let chatContentType = 1; // 1: text, 2: image, 3: voice
+
 const today = new Date();
 const displayToday = today.toLocaleDateString("ko-KR");
 
@@ -21,6 +23,12 @@ const sendChatBtnClick = async () => {
 
 };
 
+const resizeTextAreaByHeight = async () => {
+	const textArea = document.getElementById("chat-input-area");
+	textArea.style.height = 'auto';
+	textArea.style.height = `${textArea.scrollHeight}px`;
+};
+
 const showCameraImagePreview = async () => {
 	const previewSection = document.getElementById("image-preview-section");
 	const cameraImage = document.getElementById("cameraImage");
@@ -37,6 +45,7 @@ const showCameraImagePreview = async () => {
 	};
 
 	fileReader.readAsDataURL(image);
+	chatContentType = 2; // image type
 };
 
 const closeCameraImagePreview = async () => {
@@ -44,6 +53,7 @@ const closeCameraImagePreview = async () => {
 	const cameraImage = document.getElementById("cameraImage");
 	previewSection.className = 'hidden';
 	cameraImage.value = ''; // input file reset
+	chatContentType = 1; // reset content type
 };
 
 </script>
@@ -79,7 +89,7 @@ const closeCameraImagePreview = async () => {
 				<img src="/images/chat/camera.svg" @click="$refs.liveCamera.click()">
 				<input type="file" ref="liveCamera" id="cameraImage" name="camera" capture="camera" accept="image/*" style="display: none;" @change="showCameraImagePreview" />
 				<img src="/images/chat/live_record.svg">
-				<textarea id="chat-input-area"></textarea>
+				<textarea id="chat-input-area" maxlength="200" rows="1" spellcheck="false" @keydown="resizeTextAreaByHeight"></textarea>
 				<img src="/images/chat/send_btn.png" class="send-btn" @click="sendChatBtnClick">
 			</div>
 		</section>
@@ -147,6 +157,7 @@ const closeCameraImagePreview = async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
+	background-color: white;
 }
 
 .ongoing-quest-notice {
@@ -195,12 +206,14 @@ const closeCameraImagePreview = async () => {
 
 textarea {
 	width: 100%;
-	height: 40px;
+	min-height: 40px;
+	max-height: 100px;
 	box-sizing: border-box;
 	border: solid 2px #C0C0C0;
 	border-radius: 5px;
 	font-size: 16px;
 	resize: none;
+	padding: 8px;
 }
 
 textarea:focus {
