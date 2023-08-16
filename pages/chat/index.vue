@@ -4,6 +4,7 @@ import chatApi from "~/service/chatApi";
 import tourApi from "~/service/tourApi";
 import nuxtStorage from "nuxt-storage";
 import constant from "~/service/constant";
+import axios from "axios";
 
 let chatContentType = 1; // 1: text, 2: image, 3: voice
 
@@ -65,7 +66,44 @@ const sendChatBtnClick = async () => {
 
 	// image
 	if (chatContentType === 2) {
+		let formData = new FormData();
+		formData.append('chat_role', requestData['chat_role']);
+		formData.append('content_type', 2);
+		formData.append('lat', requestData['lat']);
+		formData.append('lng', requestData['lng']);
+
+		const cameraImage = document.getElementById("cameraImage");
+		formData.append('content', cameraImage.files[0]);
+
+		const result = await submitImageChat(formData);
+		if (result.code !== 200) {
+			alert("이미지 전송에 실패하였습니다.");
+			return;
+		}
+		window.location.reload(true); // 채팅 내용 반영을 위해서 새로고침 TODO : 이 방식보다 나은 방식을 찾아야 함.
 		return;
+	}
+
+	if (chatContentType === 3) {
+		// TODO : voice
+	}
+};
+
+const submitImageChat = async (formData) => {
+	const config = useRuntimeConfig();
+	try {
+		const { data } = await axios.post(`${config.public.API_BASE_URL}/api/v1/chats`, formData, {
+			headers: {
+				Authorization: userTokenFromLocalStorage,
+				'Content-Type': 'multipart/form-data',
+				'Access-Control-Allow-Origin': '*',
+				'ngrok-skip-browser-warning': '123',
+			}
+		});
+		return data;
+	} catch (error) {
+		const response = error.response;
+		return response.data;
 	}
 };
 
