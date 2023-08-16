@@ -1,26 +1,72 @@
 <script setup>
 import ChatView from "~/components/ChatView.vue";
 import chatApi from "~/service/chatApi";
+import tourApi from "~/service/tourApi";
+import nuxtStorage from "nuxt-storage";
+import constant from "~/service/constant";
 
 let chatContentType = 1; // 1: text, 2: image, 3: voice
+
+const route = useRoute();
+const userTokenFromLocalStorage = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY);
+let chats = ref('chatList');
+let result = await chatApi.getAllChats(route.query['journeyId'], userTokenFromLocalStorage);
+if (result.code !== 200) {
+	alert("메세지 내역을 가져오는 것에 실패했습니다.");
+} else {
+	chats = result.chats;
+
+}
+
+onMounted(async () => {
+	if (!userTokenFromLocalStorage) {
+		navigateTo('/login');
+		return;
+	}
+	document.getElementById("chat-conversation").scrollTop = document.getElementById("chat-conversation").scrollHeight;
+});
 
 const today = new Date();
 const displayToday = today.toLocaleDateString("ko-KR");
 
 // TODO : 사용자의 현재 진행중인 퀘스트 가져오기
 const nowQuest = {
-	existed: true,
+	existed: false,
 	title: '63빌딩 기어서 올라간 후 인증샷'
 }
 
-// TODO : 채팅 목록 API 요청하여 데이터 가져오기
-let chats = [];
-chatApi.all(response => {
-	chats = response.chats;
-});
-
 const sendChatBtnClick = async () => {
+	const location = await tourApi.getCurrentLocation();
+	let requestData = {
+		chat_role: 2, // 1: chat GPT, 2: user
+		content_type: chatContentType,
+		content: ' ',
+		lat: location.lat,
+		lng: location.lng,
+	};
+	if (!location) {
+		alert("위치동의를 해주셔야 이용을 하실 수 있습니다.");
+		return;
+	}
 
+	if (chatContentType === 1) {
+		requestData['content'] = document.getElementById("chat-input-area").value;
+		document.getElementById("chat-input-area").value = ''; // reset textarea
+		const result = await chatApi.sendChat(requestData, userTokenFromLocalStorage);
+		if (result.code !== 200) {
+			alert("메세지 전송에 실패하였습니다.");
+			return;
+		}
+		// const userChat = chatApi.makeChatForShow(result.question); // user question
+		// const buddyChat = chatApi.makeChatForShow(result.answer); // chat GPT answer
+		window.location.reload(true); // 채팅 내용 반영을 위해서 새로고침 TODO : 이 방식보다 나은 방식을 찾아야 함.
+		return;
+	}
+
+	// image
+	if (chatContentType === 2) {
+		return;
+	}
 };
 
 const resizeTextAreaByHeight = async () => {
@@ -69,7 +115,7 @@ const closeCameraImagePreview = async () => {
 			<span class="now-datetime">{{ displayToday }}</span>
 		</div>
 
-		<section class="chat-text-list-area">
+		<section id="chat-conversation" class="chat-text-list-area">
 			<ChatView v-for="chat in chats" :chat-component="chat">
 			</ChatView>
 		</section>
@@ -90,7 +136,9 @@ const closeCameraImagePreview = async () => {
 				<input type="file" ref="liveCamera" id="cameraImage" name="camera" capture="camera" accept="image/*" style="display: none;" @change="showCameraImagePreview" />
 				<img src="/images/chat/live_record.svg">
 				<textarea id="chat-input-area" maxlength="200" rows="1" spellcheck="false" @keydown="resizeTextAreaByHeight"></textarea>
-				<img src="/images/chat/send_btn.png" class="send-btn" @click="sendChatBtnClick">
+				<button class="submit-btn" @click="sendChatBtnClick">
+					<img src="/images/chat/send_btn.png" class="send-btn">
+				</button>
 			</div>
 		</section>
 	</section>
@@ -202,6 +250,16 @@ const closeCameraImagePreview = async () => {
   height: 24px;
   background: none;
   border: none;
+}
+
+.submit-btn {
+	background: none;
+	border: none;
+}
+
+.submit-btn:active {
+	background-color: #778088;
+	border-radius: 8px;
 }
 
 textarea {
