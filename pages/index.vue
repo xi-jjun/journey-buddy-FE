@@ -8,7 +8,7 @@ import parseJwt from "~/service/jwtParser";
 import userPersonalityTestingApi from "~/service/userPersonalityTestingApi";
 import journeyApi from "~/service/journeyApi";
 
-const userCurrentJourney = '현재 진행중인 여행 타이틀';
+let userCurrentJourney = '현재 진행중인 여행 타이틀';
 let totalJourneyCount = 0;
 const totalJourneyCntResult = await journeyApi.getTotalJourneyCount();
 const totalJourneyCountFromAllUsers = totalJourneyCntResult['journey_count'];
@@ -21,6 +21,12 @@ if (nuxtStorage.localStorage) {
 	const payload = parseJwt(userTokenFromLocalStorage);
 	const userTotalJourneyCntResult = await journeyApi.getTotalUserJourneyCount(payload['user_id']);
 	totalJourneyCount = userTotalJourneyCntResult['journey_count'];
+
+	// 메인 페이지에 현재 진행중인 여행 타이틀 노출 위해 추가
+	const userTravelingJourneyResult = await journeyApi.getCurrentUserJourney(userTokenFromLocalStorage);
+	if (userTravelingJourneyResult.code === 200) {
+		userCurrentJourney = userTravelingJourneyResult['journey']['title'];
+	}
 }
 
 onMounted(async () => {
