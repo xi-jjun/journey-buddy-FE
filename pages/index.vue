@@ -173,7 +173,7 @@ const startNewJourneyBtnClick = async () => {
 
 		<div class="main-layout-travel-start-btns">
 			<div class="travel-start-btns-chat-with-ai">
-				<button>AI와 대화하기</button>
+				<button @click="startNewJourneyBtnClick">AI와 대화하기</button>
 				<img src="/images/ai_default_profile_main_layout.svg"/>
 			</div>
 			<button class="travel-start-btns-new-journey" @click="startNewJourneyBtnClick">새로운 여행 시작하기</button>
