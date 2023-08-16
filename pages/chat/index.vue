@@ -17,7 +17,7 @@ if (nuxtStorage.localStorage) {
 let chats = ref('chatList');
 let result = await chatApi.getAllChats(route.query['journeyId'], userTokenFromLocalStorage);
 if (result.code !== 200) {
-	alert("메세지 내역을 가져오는 것에 실패했습니다.");
+	console.log("메세지 내역을 가져오는 것에 실패했습니다.");
 } else {
 	chats = result.chats;
 }
@@ -156,7 +156,7 @@ const closeCameraImagePreview = async () => {
 
 <template>
 	<section class="chat-page">
-		<header class="chat-page-navbar">
+		<header class="chat-page-navbar" @click="$router.go(-1);">
 			<img src="/images/login/back_icon_navbar.svg" class="chat-page-back-btn">
 		</header>
 
