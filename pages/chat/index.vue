@@ -1,3 +1,147 @@
+<script setup>
+import ChatView from "~/components/ChatView.vue";
+import chatApi from "~/service/chatApi";
+import tourApi from "~/service/tourApi";
+import nuxtStorage from "nuxt-storage";
+import constant from "~/service/constant";
+import axios from "axios";
+
+let chatContentType = 1; // 1: text, 2: image, 3: voice
+
+const route = useRoute();
+const userTokenFromLocalStorage = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY);
+let chats = ref('chatList');
+let result = await chatApi.getAllChats(route.query['journeyId'], userTokenFromLocalStorage);
+if (result.code !== 200) {
+	alert("메세지 내역을 가져오는 것에 실패했습니다.");
+} else {
+	chats = result.chats;
+
+}
+
+onMounted(async () => {
+	if (!userTokenFromLocalStorage) {
+		navigateTo('/login');
+		return;
+	}
+	document.getElementById("chat-conversation").scrollTop = document.getElementById("chat-conversation").scrollHeight;
+});
+
+const today = new Date();
+const displayToday = today.toLocaleDateString("ko-KR");
+
+// TODO : 사용자의 현재 진행중인 퀘스트 가져오기
+const nowQuest = {
+	existed: false,
+	title: '63빌딩 기어서 올라간 후 인증샷'
+}
+
+const sendChatBtnClick = async () => {
+	const location = await tourApi.getCurrentLocation();
+	let requestData = {
+		chat_role: 2, // 1: chat GPT, 2: user
+		content_type: chatContentType,
+		content: ' ',
+		lat: location.lat,
+		lng: location.lng,
+	};
+	if (!location) {
+		alert("위치동의를 해주셔야 이용을 하실 수 있습니다.");
+		return;
+	}
+
+	if (chatContentType === 1) {
+		requestData['content'] = document.getElementById("chat-input-area").value;
+		document.getElementById("chat-input-area").value = ''; // reset textarea
+		const result = await chatApi.sendChat(requestData, userTokenFromLocalStorage);
+		if (result.code !== 200) {
+			alert("메세지 전송에 실패하였습니다.");
+			return;
+		}
+		// const userChat = chatApi.makeChatForShow(result.question); // user question
+		// const buddyChat = chatApi.makeChatForShow(result.answer); // chat GPT answer
+		window.location.reload(true); // 채팅 내용 반영을 위해서 새로고침 TODO : 이 방식보다 나은 방식을 찾아야 함.
+		return;
+	}
+
+	// image
+	if (chatContentType === 2) {
+		let formData = new FormData();
+		formData.append('chat_role', requestData['chat_role']);
+		formData.append('content_type', 2);
+		formData.append('lat', requestData['lat']);
+		formData.append('lng', requestData['lng']);
+
+		const cameraImage = document.getElementById("cameraImage");
+		formData.append('content', cameraImage.files[0]);
+
+		const result = await submitImageChat(formData);
+		if (result.code !== 200) {
+			alert("이미지 전송에 실패하였습니다.");
+			return;
+		}
+		window.location.reload(true); // 채팅 내용 반영을 위해서 새로고침 TODO : 이 방식보다 나은 방식을 찾아야 함.
+		return;
+	}
+
+	if (chatContentType === 3) {
+		// TODO : voice
+	}
+};
+
+const submitImageChat = async (formData) => {
+	const config = useRuntimeConfig();
+	try {
+		const { data } = await axios.post(`${config.public.API_BASE_URL}/api/v1/chats`, formData, {
+			headers: {
+				Authorization: userTokenFromLocalStorage,
+				'Content-Type': 'multipart/form-data',
+				'Access-Control-Allow-Origin': '*',
+				'ngrok-skip-browser-warning': '123',
+			}
+		});
+		return data;
+	} catch (error) {
+		const response = error.response;
+		return response.data;
+	}
+};
+
+const resizeTextAreaByHeight = async () => {
+	const textArea = document.getElementById("chat-input-area");
+	textArea.style.height = 'auto';
+	textArea.style.height = `${textArea.scrollHeight}px`;
+};
+
+const showCameraImagePreview = async () => {
+	const previewSection = document.getElementById("image-preview-section");
+	const cameraImage = document.getElementById("cameraImage");
+	const imageShowArea = document.getElementById("fileUploadPreviewArea");
+	if (previewSection.className === 'hidden') {
+		previewSection.className = '';
+	}
+
+	const image = cameraImage.files[0];
+
+	const fileReader = new FileReader();
+	fileReader.onload = (img) => {
+		imageShowArea.src = img.target.result;
+	};
+
+	fileReader.readAsDataURL(image);
+	chatContentType = 2; // image type
+};
+
+const closeCameraImagePreview = async () => {
+	const previewSection = document.getElementById("image-preview-section");
+	const cameraImage = document.getElementById("cameraImage");
+	previewSection.className = 'hidden';
+	cameraImage.value = ''; // input file reset
+	chatContentType = 1; // reset content type
+};
+
+</script>
+
 <template>
 	<section class="chat-page">
 		<header class="chat-page-navbar">
@@ -9,47 +153,34 @@
 			<span class="now-datetime">{{ displayToday }}</span>
 		</div>
 
-		<section class="chat-text-list-area">
+		<section id="chat-conversation" class="chat-text-list-area">
 			<ChatView v-for="chat in chats" :chat-component="chat">
 			</ChatView>
 		</section>
 
 		<section class="chat-page-bottom-side">
-			<div v-show="nowQuest.existed" class="ongoing-quest-notice">
+			<div id="image-preview-section" class="hidden">
+				<button class="image-preview-close-btn" @click="closeCameraImagePreview">&times;</button>
+				<img id="fileUploadPreviewArea"/>
+			</div>
+
+			<div v-if="nowQuest.existed" class="ongoing-quest-notice">
 				<div class="quest-status">진행 중</div>
 				<span class="quest-title">{{ nowQuest.title }}</span>
 			</div>
 
 			<div class="chat-page-input-functions">
-				<img src="/images/chat/camera.svg">
+				<img src="/images/chat/camera.svg" @click="$refs.liveCamera.click()">
+				<input type="file" ref="liveCamera" id="cameraImage" name="camera" capture="camera" accept="image/*" style="display: none;" @change="showCameraImagePreview" />
 				<img src="/images/chat/live_record.svg">
-				<textarea></textarea>
-				<img src="/images/chat/send_btn.png" class="send-btn">
+				<textarea id="chat-input-area" maxlength="200" rows="1" spellcheck="false" @keydown="resizeTextAreaByHeight"></textarea>
+				<button class="submit-btn" @click="sendChatBtnClick">
+					<img src="/images/chat/send_btn.png" class="send-btn">
+				</button>
 			</div>
 		</section>
 	</section>
 </template>
-
-<script setup>
-import ChatView from "~/components/ChatView.vue";
-import chatApi from "~/service/chatApi";
-
-const today = new Date();
-const displayToday = today.toLocaleDateString("ko-KR");
-
-// TODO : 사용자의 현재 진행중인 퀘스트 가져오기
-const nowQuest = {
-	existed: true,
-	title: '63빌딩 기어서 올라간 후 인증샷'
-}
-
-// TODO : 채팅 목록 API 요청하여 데이터 가져오기
-let chats = [];
-chatApi.all(response => {
-	chats = response.chats;
-});
-
-</script>
 
 <style scoped lang="css">
 .chat-page {
@@ -112,6 +243,7 @@ chatApi.all(response => {
   display: flex;
   flex-direction: column;
   align-items: center;
+	background-color: white;
 }
 
 .ongoing-quest-notice {
@@ -158,17 +290,80 @@ chatApi.all(response => {
   border: none;
 }
 
+.submit-btn {
+	background: none;
+	border: none;
+}
+
+.submit-btn:active {
+	background-color: #778088;
+	border-radius: 8px;
+}
+
 textarea {
 	width: 100%;
-	height: 40px;
+	min-height: 40px;
+	max-height: 100px;
 	box-sizing: border-box;
 	border: solid 2px #C0C0C0;
 	border-radius: 5px;
 	font-size: 16px;
 	resize: none;
+	padding: 8px;
 }
 
 textarea:focus {
 	outline: none;
+}
+
+#fileUploadPreviewArea {
+	height: 25vh;
+	width: 40vw;
+	border-radius: 12px;
+}
+
+#image-preview-section {
+	text-align: center;
+	padding: 8px 0;
+	width: 100%;
+
+	position: relative;
+}
+
+#image-preview-section::before {
+	position: absolute;
+	content: "";
+
+	text-align: center;
+	width: 100%;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 28.5vh;
+	background-color: black;
+	opacity: 0.5;
+	z-index: -1;
+}
+
+.image-preview-close-btn {
+	position: absolute;
+	display: flex;
+	align-items: center;
+	font-size: 35px;
+	top: 0;
+	right: 6vw;
+
+	color: white;
+	background: none;
+	border: none;
+}
+
+.image-preview-close-btn:active {
+	color: red;
+	font-size: 45px;
+}
+
+.hidden {
+	display: none;
 }
 </style>
