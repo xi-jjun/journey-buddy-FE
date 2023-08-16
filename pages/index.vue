@@ -9,7 +9,7 @@ import userPersonalityTestingApi from "~/service/userPersonalityTestingApi";
 import journeyApi from "~/service/journeyApi";
 
 const userCurrentJourney = '현재 진행중인 여행 타이틀';
-const totalJourneyCount = 0;
+let totalJourneyCount = 0;
 const totalJourneyCntResult = await journeyApi.getTotalJourneyCount();
 const totalJourneyCountFromAllUsers = totalJourneyCntResult['journey_count'];
 
@@ -18,6 +18,9 @@ const tourListByLocation = ref(null); // tour api 를 통한 관광지 객체 �
 let userTokenFromLocalStorage;
 if (nuxtStorage.localStorage) {
 	userTokenFromLocalStorage = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY); // user token
+	const payload = parseJwt(userTokenFromLocalStorage);
+	const userTotalJourneyCntResult = await journeyApi.getTotalUserJourneyCount(payload['user_id']);
+	totalJourneyCount = userTotalJourneyCntResult['journey_count'];
 }
 
 onMounted(async () => {
