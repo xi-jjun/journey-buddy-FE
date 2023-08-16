@@ -151,7 +151,7 @@ const showMenuView = async () => {
 
 		<div id="nav-bar" class="main-layout-upside">
 			<img src="/images/jb_logo_main_layout.svg" class="upside-logo"/>
-			<img src="/images/menu_btn_main_layout_upside.png" class="upside-menu-btn" @click="showMenuView"/>
+			<img src="/images/menu_btn_main_layout_upside.png" class="upside-menu-btn"/>
 		</div>
 
 		<div v-if="!userTokenFromLocalStorage" class="main-layout-anonymous-welcome">
@@ -178,7 +178,7 @@ const showMenuView = async () => {
 			<span v-if="userTokenFromLocalStorage && totalJourneyCount === 0" class="travel-with-journey-buddy-total-count">여행을 떠나요!</span> <!-- 로그인 된 상태 AND 여행 0회 : 여행을 떠나요 문구 출력 -->
 			<span v-if="userTokenFromLocalStorage && totalJourneyCount !== 0" class="travel-with-journey-buddy-total-count">{{ totalJourneyCount }}</span> <!-- 로그인 된 상태 : 해당 유저의 여행 총 횟수 -->
 			<span v-if="!userTokenFromLocalStorage" class="travel-with-journey-buddy-total-count">{{ totalJourneyCountFromAllUsers }}</span> <!-- 로그인 안된 상태 : 모든 유저의 여행 총 횟수 -->
-			<img v-if="userTokenFromLocalStorage" src="/images/go_to_icon_main_layout.svg" alt="goto_journey"/>
+			<img v-if="userTokenFromLocalStorage" src="/images/go_to_icon_main_layout.svg" alt="goto_journey" @click="navigateTo('/journey-history')"/>
 		</div>
 
 		<div class="main-layout-travel-start-btns">
