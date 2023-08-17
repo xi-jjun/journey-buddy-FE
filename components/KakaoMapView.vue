@@ -47,7 +47,7 @@ export default {
 			});
 
 			this.chatList.forEach(chat => {
-				const position = new kakao.maps.LatLng(chat.lat, chat.lng);
+				const position = new kakao.maps.LatLng(chat.latitude, chat.longitude);
 
 				const markerImageUrl = this.getMarkerImageUrl(chat.content_type);
 				const imageMarker = this.createImageMarker(markerImageUrl, position);

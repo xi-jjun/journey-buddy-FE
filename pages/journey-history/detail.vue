@@ -1,3 +1,67 @@
+<script setup>
+
+import { Swiper, SwiperSlide } from "swiper/vue";
+import 'swiper/css';
+import ChatView from "~/components/ChatView.vue";
+import userApi from "~/service/userApi";
+import nuxtStorage from "nuxt-storage";
+import constant from "~/service/constant";
+import parseJwt from "~/service/jwtParser";
+
+const route = useRoute();
+let userTokenFromLocalStorage;
+if (nuxtStorage.localStorage) {
+	userTokenFromLocalStorage = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY); // user token
+}
+
+let chatList;
+let journeyDetailInfo;
+let journeyImageList = []; // 여행의 모든 파일 중 이미지 리스트
+let journeyVoiceList = []; // 여행의 모든 파일 중 음성파일 리스트
+
+const payload = parseJwt(userTokenFromLocalStorage);
+const result = await userApi.getUserJourneyDetailInfo(payload['user_id'], route.query['journeyId'], userTokenFromLocalStorage);
+
+chatList = result['result']['chats'];
+chatList.forEach((chatData) => {
+	if (chatData.content_type === 2) {
+		journeyImageList.push({
+			file_url: chatData.content,
+			username: chatData.name,
+			content_type: chatData.content_type,
+			created_at: chatData.created_at
+		});
+	} else if (chatData.content_type === 3) {
+		journeyVoiceList.push({
+			file_url: chatData.content,
+			username: chatData.name,
+			content_type: chatData.content_type,
+			created_at: chatData.created_at
+		});
+	}
+});
+
+// KAKAO MAP
+// 2번째 부터 유저가 채팅하기에 배열의 인덱스 1 조회
+const initLat = chatList[1]['latitude'];
+const initLng = chatList[1]['longitude'];
+const kakaoMapOptions = {
+	center: { lat: initLat, lng: initLng },
+	level: 7
+};
+
+const journeyDetailInfoResult = result['result'];
+journeyDetailInfo = {
+	title: journeyDetailInfoResult['journey_title'],
+	subtitle: journeyDetailInfoResult['journey_subtitle'],
+	address_name: journeyDetailInfoResult['journey_location'],
+	total_chat_cnt: journeyDetailInfoResult['total_chat_cnt'],
+	total_journey_time: journeyDetailInfoResult['total_spend_time'],
+	total_distance: journeyDetailInfoResult['total_distance'],
+}
+
+</script>
+
 <template>
 	<section class="journey-history-detail-page">
 		<BackNavbarView :navbar-title="``">
@@ -73,7 +137,7 @@
 		<section class="journey-history-detail-images">
 			<h3>사진</h3>
 			<div class="journey-history-detail-images-wrapper">
-				<ImageView :image-component="imageComponent" v-for="imageComponent in journeyImageListForImageView">
+				<ImageView :image-component="imageComponent" v-for="imageComponent in journeyImageList">
 
 				</ImageView>
 			</div>
@@ -81,64 +145,6 @@
 	</section>
 
 </template>
-
-<script setup>
-
-import { Swiper, SwiperSlide } from "swiper/vue";
-import 'swiper/css';
-import chatApi from "~/service/chatApi";
-import journeyApi from "~/service/journeyApi";
-import ChatView from "~/components/ChatView.vue";
-
-// KAKAO MAP
-let chatList = [];
-let journeyDetailInfo = {};
-let journeyFileList = []; // 여행의 모든 파일 리스트
-let journeyImageList = []; // 여행의 모든 파일 중 이미지 리스트
-let journeyImageListForImageView = []; // 여행의 모든 파일 중 이미지 리스트
-let journeyVoiceList = []; // 여행의 모든 파일 중 음성파일 리스트
-chatApi.all((response) => {
-	chatList = response.chats;
-});
-
-journeyApi.getJourneyDetailById(response => {
-	journeyDetailInfo = response.journey;
-});
-
-journeyApi.getJourneyFiles(response => {
-	journeyImageList = response.journeyFiles.filter(journeyFile => {
-		return journeyFile.content_type === 2;
-	});
-	journeyFileList = response.journeyFiles;
-});
-
-// TODO : journeyAPI 가 아니라 모두 chat api 에서 가져오도록 수정 필요 (어차피 정보는 다 여기있어서..)
-chatApi.all(response => {
-	response.chats.forEach(chatData => {
-		if (chatData.content_type === 2) {
-			journeyImageListForImageView.push({
-				file_url: chatData.content,
-				username: chatData.name,
-				content_type: chatData.content_type,
-				created_at: '7월 31일 오후 1:20'
-			});
-		} else if (chatData.content_type === 3) {
-			journeyVoiceList.push({
-				file_url: chatData.content,
-				username: chatData.name,
-				content_type: chatData.content_type,
-				created_at: '7월 31일 오후 1:20'
-			});
-		}
-	});
-});
-
-const kakaoMapOptions = {
-	center: { lat: chatList[0].lat, lng: chatList[0].lng },
-	level: 7
-};
-
-</script>
 
 <style scoped lang="css">
 .journey-history-detail-page {

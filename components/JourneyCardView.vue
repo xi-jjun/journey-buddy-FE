@@ -1,25 +1,27 @@
+<script setup>
+const { journeyInfoComponent } = defineProps(['journey-info-component']);
+
+function goToJourneyDetail(id) {
+	navigateTo(`/journey-history/detail?journeyId=${id}`);
+}
+</script>
+
 <template>
 	<section class="journey-card-view-component">
-		<div class="journey-card-view-image-wrapper">
-			<img :src="journeyInfoComponent.image_url" alt="journey image" @click="goToJourneyDetail(journeyInfoComponent.id)">
+		<div class="journey-card-view-image-wrapper" @click="goToJourneyDetail(journeyInfoComponent.id)">
+			<img v-if="!journeyInfoComponent.image_url" src="/images/login/jb_logo_login_page.svg" alt="journey image">
+			<img v-if="journeyInfoComponent.image_url" :src="journeyInfoComponent.image_url" alt="journey image">
+
 			<div class="journey-card-view-description">
 				<span class="status-ready" v-if="journeyInfoComponent.status === 1">준비중</span>
-				<span class="status-traveling" v-else-if="journeyInfoComponent.status === 2">여행중</span>
-				<span class="status-complete" v-else-if="journeyInfoComponent.status === 3">여행끝</span>
+				<span class="status-traveling" v-if="journeyInfoComponent.status === 2">여행중</span>
+				<span class="status-complete" v-if="journeyInfoComponent.status === 3">여행끝</span>
 				<span class="description-title">{{ journeyInfoComponent.title }}</span>
 				<span class="description-created-at">{{ journeyInfoComponent.created_at }}</span>
 			</div>
 		</div>
 	</section>
 </template>
-
-<script setup>
-const { journeyInfoComponent } = defineProps(['journey-info-component']);
-
-function goToJourneyDetail(id) {
-	console.log("journey id : ", id);
-}
-</script>
 
 <style scoped lang="css">
 .journey-card-view-component {
