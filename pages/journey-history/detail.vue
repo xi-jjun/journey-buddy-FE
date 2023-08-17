@@ -1,3 +1,61 @@
+<script setup>
+
+import { Swiper, SwiperSlide } from "swiper/vue";
+import 'swiper/css';
+import chatApi from "~/service/chatApi";
+import journeyApi from "~/service/journeyApi";
+import ChatView from "~/components/ChatView.vue";
+
+// KAKAO MAP
+const kakaoMapOptions = {
+	center: { lat: chatList[0].lat, lng: chatList[0].lng },
+	level: 7
+};
+
+let chatList = [];
+let journeyDetailInfo = {};
+let journeyFileList = []; // 여행의 모든 파일 리스트
+let journeyImageList = []; // 여행의 모든 파일 중 이미지 리스트
+let journeyImageListForImageView = []; // 여행의 모든 파일 중 이미지 리스트
+let journeyVoiceList = []; // 여행의 모든 파일 중 음성파일 리스트
+chatApi.all((response) => {
+	chatList = response.chats;
+});
+
+journeyApi.getJourneyDetailById(response => {
+	journeyDetailInfo = response.journey;
+});
+
+journeyApi.getJourneyFiles(response => {
+	journeyImageList = response.journeyFiles.filter(journeyFile => {
+		return journeyFile.content_type === 2;
+	});
+	journeyFileList = response.journeyFiles;
+});
+
+// TODO : journeyAPI 가 아니라 모두 chat api 에서 가져오도록 수정 필요 (어차피 정보는 다 여기있어서..)
+chatApi.all(response => {
+	response.chats.forEach(chatData => {
+		if (chatData.content_type === 2) {
+			journeyImageListForImageView.push({
+				file_url: chatData.content,
+				username: chatData.name,
+				content_type: chatData.content_type,
+				created_at: '7월 31일 오후 1:20'
+			});
+		} else if (chatData.content_type === 3) {
+			journeyVoiceList.push({
+				file_url: chatData.content,
+				username: chatData.name,
+				content_type: chatData.content_type,
+				created_at: '7월 31일 오후 1:20'
+			});
+		}
+	});
+});
+
+</script>
+
 <template>
 	<section class="journey-history-detail-page">
 		<BackNavbarView :navbar-title="``">
@@ -81,64 +139,6 @@
 	</section>
 
 </template>
-
-<script setup>
-
-import { Swiper, SwiperSlide } from "swiper/vue";
-import 'swiper/css';
-import chatApi from "~/service/chatApi";
-import journeyApi from "~/service/journeyApi";
-import ChatView from "~/components/ChatView.vue";
-
-// KAKAO MAP
-let chatList = [];
-let journeyDetailInfo = {};
-let journeyFileList = []; // 여행의 모든 파일 리스트
-let journeyImageList = []; // 여행의 모든 파일 중 이미지 리스트
-let journeyImageListForImageView = []; // 여행의 모든 파일 중 이미지 리스트
-let journeyVoiceList = []; // 여행의 모든 파일 중 음성파일 리스트
-chatApi.all((response) => {
-	chatList = response.chats;
-});
-
-journeyApi.getJourneyDetailById(response => {
-	journeyDetailInfo = response.journey;
-});
-
-journeyApi.getJourneyFiles(response => {
-	journeyImageList = response.journeyFiles.filter(journeyFile => {
-		return journeyFile.content_type === 2;
-	});
-	journeyFileList = response.journeyFiles;
-});
-
-// TODO : journeyAPI 가 아니라 모두 chat api 에서 가져오도록 수정 필요 (어차피 정보는 다 여기있어서..)
-chatApi.all(response => {
-	response.chats.forEach(chatData => {
-		if (chatData.content_type === 2) {
-			journeyImageListForImageView.push({
-				file_url: chatData.content,
-				username: chatData.name,
-				content_type: chatData.content_type,
-				created_at: '7월 31일 오후 1:20'
-			});
-		} else if (chatData.content_type === 3) {
-			journeyVoiceList.push({
-				file_url: chatData.content,
-				username: chatData.name,
-				content_type: chatData.content_type,
-				created_at: '7월 31일 오후 1:20'
-			});
-		}
-	});
-});
-
-const kakaoMapOptions = {
-	center: { lat: chatList[0].lat, lng: chatList[0].lng },
-	level: 7
-};
-
-</script>
 
 <style scoped lang="css">
 .journey-history-detail-page {
