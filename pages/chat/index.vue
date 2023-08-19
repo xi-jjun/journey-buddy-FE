@@ -15,7 +15,7 @@ if (nuxtStorage.localStorage) {
 	userTokenFromLocalStorage = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY); // user token
 }
 let chats = ref('chatList');
-let result = await chatApi.getAllChats(route.query['journey_id'], userTokenFromLocalStorage);
+let result = await chatApi.getAllChats(route.query['journeyId'], userTokenFromLocalStorage);
 if (result.code !== 200) {
 	console.log("메세지 내역을 가져오는 것에 실패했습니다.");
 } else {

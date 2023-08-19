@@ -22,7 +22,7 @@ const touchScreen = async () => {
 		return;
 	}
 
-	navigateTo(`/chat?journey_id=${journeyId}`);
+	navigateTo(`/chat?journeyId=${journeyId}`);
 };
 
 </script>
