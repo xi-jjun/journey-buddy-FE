@@ -227,7 +227,7 @@ const closeCameraImagePreview = async () => {
 
 			<div class="chat-page-input-functions">
 				<img src="/images/chat/camera.svg" @click="$refs.liveCamera.click()">
-				<input type="file" ref="liveCamera" id="cameraImage" name="camera" capture="camera" accept="image/*" style="display: none;" @change="showCameraImagePreview" />
+				<input type="file" id="cameraImage" ref="liveCamera" accept="image/*" style="display: none;" @change="showCameraImagePreview" />
 				<img src="/images/chat/live_record.svg">
 				<textarea id="chat-input-area" maxlength="200" rows="1" spellcheck="false" @keydown="resizeTextAreaByHeight"></textarea>
 				<button class="submit-btn" @click="sendChatBtnClick">
