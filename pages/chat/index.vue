@@ -7,14 +7,15 @@ import constant from "~/service/constant";
 import axios from "axios";
 import journeyApi from "~/service/journeyApi";
 
-let chatContentType = 1; // 1: text, 2: image, 3: voice
-let canUse = true; // true: 사용가능, false: 사용불가
 
 const today = new Date();
 const displayToday = today.toLocaleDateString("ko-KR");
 
-const chatReactive = reactive({ list: [] })
-const journeyInfoReactive = reactive({ title: [] })
+// canUse => true: 사용가능, false: 사용불가
+// content_type => 1: text, 2: image, 3: voice
+const sendChatBtn = reactive({ canUse: true, user_chat: '', content_type: 1 });
+const chatReactive = reactive({ list: [] });
+const journeyInfoReactive = reactive({ title: [] });
 
 const route = useRoute();
 let userTokenFromLocalStorage;
@@ -53,16 +54,18 @@ const nowQuest = {
 }
 
 const sendChatBtnClick = async () => {
-	if (!canUse) return;
-	canUse = false;
+	if (!sendChatBtn.canUse) return;
+	sendChatBtn.canUse = false;
 
-	const waitingView = document.getElementById("chat-waiting");
-	waitingView.className = '';
+	if (sendChatBtn.content_type === 1) {
+		sendChatBtn.user_chat = document.getElementById("chat-input-area").value;
+		document.getElementById("chat-input-area").value = ''; // reset textarea
+	}
 
 	const location = await tourApi.getCurrentLocation();
 	let requestData = {
 		chat_role: 2, // 1: chat GPT, 2: user
-		content_type: chatContentType,
+		content_type: sendChatBtn.content_type,
 		content: ' ',
 		lat: location.lat,
 		lng: location.lng,
@@ -73,9 +76,8 @@ const sendChatBtnClick = async () => {
 		return;
 	}
 
-	if (chatContentType === 1) {
-		requestData['content'] = document.getElementById("chat-input-area").value;
-		document.getElementById("chat-input-area").value = ''; // reset textarea
+	if (sendChatBtn.content_type === 1) {
+		requestData['content'] = sendChatBtn.user_chat;
 		const result = await chatApi.sendChat(requestData, userTokenFromLocalStorage);
 		if (result.code !== 200) {
 			alert("메세지 전송에 실패하였습니다.");
@@ -88,7 +90,7 @@ const sendChatBtnClick = async () => {
 	}
 
 	// image
-	if (chatContentType === 2) {
+	if (sendChatBtn.content_type === 2) {
 		let formData = new FormData();
 		formData.append('chat_role', requestData['chat_role']);
 		formData.append('content_type', 2);
@@ -110,18 +112,14 @@ const sendChatBtnClick = async () => {
 		return;
 	}
 
-	if (chatContentType === 3) {
+	if (sendChatBtn.content_type === 3) {
 		// TODO : voice
 	}
 };
 
 const resetParams = async () => {
-	chatContentType = 1;
-	canUse = true;
-	const waitingView = document.getElementById("chat-waiting");
-	if (!waitingView.className) {
-		waitingView.className = 'hidden';
-	}
+	sendChatBtn.content_type = 1;
+	sendChatBtn.canUse = true;
 };
 
 const submitImageChat = async (formData) => {
@@ -164,7 +162,7 @@ const showCameraImagePreview = async () => {
 	};
 
 	fileReader.readAsDataURL(image);
-	chatContentType = 2; // image type
+	sendChatBtn.content_type = 2; // image type
 };
 
 const closeCameraImagePreview = async () => {
@@ -172,7 +170,7 @@ const closeCameraImagePreview = async () => {
 	const cameraImage = document.getElementById("cameraImage");
 	previewSection.className = 'hidden';
 	cameraImage.value = ''; // input file reset
-	chatContentType = 1; // reset content type
+	sendChatBtn.content_type = 1; // reset content type
 };
 
 </script>
@@ -191,7 +189,27 @@ const closeCameraImagePreview = async () => {
 		<section id="chat-conversation" class="chat-text-list-area">
 			<ChatView v-for="chat in chatReactive.list" :chat-component="chat">
 			</ChatView>
-			<div id="chat-waiting" class="hidden">&#183; &#183; &#183;</div>
+
+			<!-- only waiting view - user -->
+			<div v-if="!sendChatBtn.canUse" class="waiting-chatting waiting-row-reverse">
+				<div class="waiting-chat-info">
+					<div v-if="sendChatBtn.content_type === 1" class="waiting-chat-info-content waiting-user-chat-info-content">
+						{{ sendChatBtn.user_chat }}
+					</div>
+					<div v-if="sendChatBtn.content_type === 2" class="waiting-chat-info-content waiting-user-chat-info-content">
+						전송중...
+					</div>
+				</div>
+			</div>
+
+			<!-- only waiting view - GPT (Waiting) -->
+			<div v-if="!sendChatBtn.canUse" class="waiting-chatting" >
+				<div class="waiting-chat-info">
+					<div class="waiting-chat-info-content">
+						작성중...
+					</div>
+				</div>
+			</div>
 		</section>
 
 		<section class="chat-page-bottom-side">
@@ -272,9 +290,37 @@ const closeCameraImagePreview = async () => {
   overflow-y: scroll;
 }
 
-#chat-waiting {
-	font-size: 26px;
-	text-align: center;
+.waiting-chatting {
+	display: flex;
+	align-items: flex-end;
+	margin-bottom: 25px;
+	margin-left: 13vw;
+	margin-right: 10px;
+}
+
+.waiting-chat-info {
+	display: flex;
+	flex-direction: column;
+	margin: 4px 8px;
+}
+
+.waiting-chat-info-content {
+	border: 1px solid #547CF1;
+	border-radius: 15px;
+	padding: 8px 16px;
+	white-space: pre-wrap;
+	font-size: 14px;
+	word-break: break-all;
+}
+
+.waiting-row-reverse {
+	flex-direction: row-reverse;
+}
+
+.waiting-user-chat-info-content {
+	background-color: #76A4FF;
+	color: white;
+	border: none;
 }
 
 .chat-page-bottom-side {
