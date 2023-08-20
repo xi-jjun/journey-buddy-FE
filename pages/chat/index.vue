@@ -5,21 +5,21 @@ import tourApi from "~/service/tourApi";
 import nuxtStorage from "nuxt-storage";
 import constant from "~/service/constant";
 import axios from "axios";
+import journeyApi from "~/service/journeyApi";
 
 let chatContentType = 1; // 1: text, 2: image, 3: voice
 let canUse = true; // true: 사용가능, false: 사용불가
+
+const today = new Date();
+const displayToday = today.toLocaleDateString("ko-KR");
+
+const chatReactive = reactive({ list: [] })
+const journeyInfoReactive = reactive({ title: [] })
 
 const route = useRoute();
 let userTokenFromLocalStorage;
 if (nuxtStorage.localStorage) {
 	userTokenFromLocalStorage = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY); // user token
-}
-let chats = ref('chatList');
-let result = await chatApi.getAllChats(route.query['journeyId'], userTokenFromLocalStorage);
-if (result.code !== 200) {
-	console.log("메세지 내역을 가져오는 것에 실패했습니다.");
-} else {
-	chats = result.chats;
 }
 
 onMounted(async () => {
@@ -27,11 +27,23 @@ onMounted(async () => {
 		navigateTo('/login');
 		return;
 	}
-	document.getElementById("chat-conversation").scrollTop = document.getElementById("chat-conversation").scrollHeight;
+	// journey title
+	const journeyResult = await journeyApi.getCurrentUserJourney(userTokenFromLocalStorage);
+	journeyInfoReactive.title = journeyResult['journey']['title'];
+
+	// chat list
+	const result = await chatApi.getAllChats(route.query['journeyId'], userTokenFromLocalStorage);
+	if (result.code === 200) {
+		chatReactive.list = result.chats;
+	} else {
+		console.log("메세지를 가져오는 것에 실패했습니다.");
+	}
 });
 
-const today = new Date();
-const displayToday = today.toLocaleDateString("ko-KR");
+onUpdated(async () => {
+	// 채팅을 불러오면, 새롭게 다시 맨 아래로 스크롤을 자동 이동 시킨다.
+	document.getElementById("chat-conversation").scrollTop = document.getElementById("chat-conversation").scrollHeight;
+});
 
 // TODO : 사용자의 현재 진행중인 퀘스트 가져오기
 const nowQuest = {
@@ -69,9 +81,9 @@ const sendChatBtnClick = async () => {
 			alert("메세지 전송에 실패하였습니다.");
 			return;
 		}
-		// const userChat = chatApi.makeChatForShow(result.question); // user question
-		// const buddyChat = chatApi.makeChatForShow(result.answer); // chat GPT answer
-		window.location.reload(true); // 채팅 내용 반영을 위해서 새로고침 TODO : 이 방식보다 나은 방식을 찾아야 함.
+		const newChatList = await chatApi.getAllChats(route.query['journeyId'], userTokenFromLocalStorage);
+		chatReactive.list = newChatList.chats;
+		await resetParams();
 		return;
 	}
 
@@ -92,12 +104,23 @@ const sendChatBtnClick = async () => {
 			alert("이미지 전송에 실패하였습니다.");
 			return;
 		}
-		window.location.reload(true); // 채팅 내용 반영을 위해서 새로고침 TODO : 이 방식보다 나은 방식을 찾아야 함.
+		const newChatList = await chatApi.getAllChats(route.query['journeyId'], userTokenFromLocalStorage);
+		chatReactive.list = newChatList.chats;
+		await resetParams();
 		return;
 	}
 
 	if (chatContentType === 3) {
 		// TODO : voice
+	}
+};
+
+const resetParams = async () => {
+	chatContentType = 1;
+	canUse = true;
+	const waitingView = document.getElementById("chat-waiting");
+	if (!waitingView.className) {
+		waitingView.className = 'hidden';
 	}
 };
 
@@ -161,12 +184,12 @@ const closeCameraImagePreview = async () => {
 		</header>
 
 		<div class="journey-info">
-			<span class="journey-info-title">나의 힐링을 위한 제주도</span>
+			<span class="journey-info-title">{{ journeyInfoReactive.title }}</span>
 			<span class="now-datetime">{{ displayToday }}</span>
 		</div>
 
 		<section id="chat-conversation" class="chat-text-list-area">
-			<ChatView v-for="chat in chats" :chat-component="chat">
+			<ChatView v-for="chat in chatReactive.list" :chat-component="chat">
 			</ChatView>
 			<div id="chat-waiting" class="hidden">&#183; &#183; &#183;</div>
 		</section>
