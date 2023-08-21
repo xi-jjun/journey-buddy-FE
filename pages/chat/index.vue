@@ -86,6 +86,12 @@ const sendChatBtnClick = async () => {
 		const newChatList = await chatApi.getAllChats(route.query['journeyId'], userTokenFromLocalStorage);
 		chatReactive.list = newChatList.chats;
 		await resetParams();
+
+		if (requestData['content'] === '/여행끝') {
+			navigateTo(`/journey/end?journeyId=${route.query['journeyId']}`);
+			return;
+		}
+
 		return;
 	}
 
