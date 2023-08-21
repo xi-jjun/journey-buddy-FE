@@ -113,7 +113,25 @@ const sendChatBtnClick = async () => {
 	}
 
 	if (sendChatBtn.content_type === 3) {
-		// TODO : voice
+		let formData = new FormData();
+		formData.append('chat_role', requestData['chat_role']);
+		formData.append('content_type', 3);
+		formData.append('lat', requestData['lat']);
+		formData.append('lng', requestData['lng']);
+
+		const voiceRecord = document.getElementById("voiceRecord");
+		formData.append('content', voiceRecord.files[0]);
+		await closeVoicePreview(); // 음성 전송했으면 미리보기 종료
+
+		const result = await submitImageChat(formData);
+		if (result.code !== 200) {
+			alert("음성 전송에 실패하였습니다.");
+			return;
+		}
+		const newChatList = await chatApi.getAllChats(route.query['journeyId'], userTokenFromLocalStorage);
+		chatReactive.list = newChatList.chats;
+		await resetParams();
+		return;
 	}
 };
 
