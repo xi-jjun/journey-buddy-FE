@@ -113,7 +113,25 @@ const sendChatBtnClick = async () => {
 	}
 
 	if (sendChatBtn.content_type === 3) {
-		// TODO : voice
+		let formData = new FormData();
+		formData.append('chat_role', requestData['chat_role']);
+		formData.append('content_type', 3);
+		formData.append('lat', requestData['lat']);
+		formData.append('lng', requestData['lng']);
+
+		const voiceRecord = document.getElementById("voiceRecord");
+		formData.append('content', voiceRecord.files[0]);
+		await closeVoicePreview(); // 음성 전송했으면 미리보기 종료
+
+		const result = await submitImageChat(formData);
+		if (result.code !== 200) {
+			alert("음성 전송에 실패하였습니다.");
+			return;
+		}
+		const newChatList = await chatApi.getAllChats(route.query['journeyId'], userTokenFromLocalStorage);
+		chatReactive.list = newChatList.chats;
+		await resetParams();
+		return;
 	}
 };
 
@@ -173,6 +191,33 @@ const closeCameraImagePreview = async () => {
 	sendChatBtn.content_type = 1; // reset content type
 };
 
+const showVoicePreview = async () => {
+	const previewSection = document.getElementById("voice-preview-section");
+	const voiceRecord = document.getElementById("voiceRecord");
+	const voiceShowArea = document.getElementById("voiceUploadPreviewArea");
+	if (previewSection.className === 'hidden') {
+		previewSection.className = '';
+	}
+
+	const voice = voiceRecord.files[0];
+
+	const fileReader = new FileReader();
+	fileReader.onload = (voice) => {
+		voiceShowArea.src = voice.target.result;
+	}
+
+	fileReader.readAsDataURL(voice);
+	sendChatBtn.content_type = 3; // voice type
+};
+
+const closeVoicePreview = async () => {
+	const previewSection = document.getElementById("voice-preview-section");
+	const voiceRecord = document.getElementById("voiceRecord");
+	previewSection.className = 'hidden';
+	voiceRecord.value = ''; // input file reset
+	sendChatBtn.content_type = 1; // reset content type
+};
+
 </script>
 
 <template>
@@ -218,6 +263,13 @@ const closeCameraImagePreview = async () => {
 				<img id="fileUploadPreviewArea"/>
 			</div>
 
+			<div id="voice-preview-section" class="hidden">
+				<button class="voice-preview-close-btn" @click="closeVoicePreview">&times;</button>
+				<audio controls="controls" id="voiceUploadPreviewArea">
+					<source src="" type="audio/mp4" />
+				</audio>
+			</div>
+
 			<div v-if="nowQuest.existed" class="ongoing-quest-notice">
 				<div v-if="nowQuest.statue === 1" class="quest-status-waiting">대기 중</div>
 				<div v-if="nowQuest.statue === 2" class="quest-status-ongoing">진행 중</div>
@@ -228,7 +280,10 @@ const closeCameraImagePreview = async () => {
 			<div class="chat-page-input-functions">
 				<img src="/images/chat/camera.svg" @click="$refs.liveCamera.click()">
 				<input type="file" id="cameraImage" ref="liveCamera" accept="image/*" style="display: none;" @change="showCameraImagePreview" />
-				<img src="/images/chat/live_record.svg">
+
+				<img src="/images/chat/live_record.svg" @click="$refs.liveVoice.click()">
+				<input type="file" id="voiceRecord" ref="liveVoice" accept="audio/*" style="display: none;" @change="showVoicePreview" />
+
 				<textarea id="chat-input-area" maxlength="200" rows="1" spellcheck="false" @keydown="resizeTextAreaByHeight"></textarea>
 				<button class="submit-btn" @click="sendChatBtnClick">
 					<img src="/images/chat/send_btn.png" class="send-btn">
@@ -433,7 +488,7 @@ textarea:focus {
 	border-radius: 12px;
 }
 
-#image-preview-section {
+#image-preview-section, #voice-preview-section {
 	text-align: center;
 	padding: 8px 0;
 	width: 100%;
@@ -456,7 +511,7 @@ textarea:focus {
 	z-index: -1;
 }
 
-.image-preview-close-btn {
+.image-preview-close-btn, .voice-preview-close-btn {
 	position: absolute;
 	display: flex;
 	align-items: center;
@@ -469,9 +524,22 @@ textarea:focus {
 	border: none;
 }
 
-.image-preview-close-btn:active {
+.image-preview-close-btn:active, .voice-preview-close-btn:active {
 	color: red;
 	font-size: 45px;
+}
+
+#voice-preview-section::before {
+	position: absolute;
+	content: "";
+
+	text-align: center;
+	width: 100%;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 10vh;
+	background-color:rgba(0, 0, 0, 0.5);
 }
 
 .hidden {
