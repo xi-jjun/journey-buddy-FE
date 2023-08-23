@@ -9,7 +9,7 @@
 			<div class="travel-item-like-btn">
 				<img src="/images/like_icon_main_layout.svg">
 			</div>
-			<img :src="tourComponent.firstimage">
+			<img v-if="tourComponent.firstimage" :src="`https://${tourComponent.firstimage.substr(7, tourComponent.firstimage.length)}`">
 		</div>
 		<div class="travel-item-description">
 			<span>{{ tourComponent.addr1.split(' ')[0] }}</span>
