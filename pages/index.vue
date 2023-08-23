@@ -138,20 +138,40 @@ const startNewJourneyBtnClick = async () => {
 
 let showMenu = false;
 const showMenuView = async () => {
-	showMenu = true;
-	console.log("hello")
+	const sideBar = document.getElementById("side-bar-fixed-view");
+
+	if (sideBar.style.right === "0px") {
+		sideBar.animate([
+			{ right: '0' },
+			{ right: '-30vw' },
+			{ right: '-60vw' },
+			{ right: '-100vw' },
+		], {
+			duration: 300,
+		});
+	} else {
+		sideBar.animate([
+			{ right: '-100vw' },
+			{ right: '-60vw' },
+			{ right: '-30vw' },
+			{ right: '0' },
+		], {
+			duration: 300,
+		});
+	}
+	sideBar.style.right = sideBar.style.right === "0px" ? "-100vw" : "0";
 };
 </script>
 
 <template>
 	<div id="MainLayout" class="main-layout">
-		<MenuView v-if="showMenu" class="fixed-view">
+		<MenuView id="side-bar-fixed-view" @closeBtnClick="showMenuView">
 
 		</MenuView>
 
 		<div id="nav-bar" class="main-layout-upside">
 			<img src="/images/jb_logo_main_layout.svg" class="upside-logo"/>
-			<img src="/images/menu_btn_main_layout_upside.png" class="upside-menu-btn"/>
+			<img src="/images/menu_btn_main_layout_upside.png" class="upside-menu-btn" @click="showMenuView"/>
 		</div>
 
 		<div v-if="!userTokenFromLocalStorage" class="main-layout-anonymous-welcome">
@@ -474,11 +494,15 @@ const showMenuView = async () => {
   padding-right: 15px;
 }
 
-.fixed-view {
-	position: absolute;
-	right: 0;
+#side-bar-fixed-view {
+	position: fixed;
+	right: -100vw;
 	top: 0;
-	bottom: 0;
+	height: 100%;
 	z-index: 1;
+}
+
+#side-bar-fixed-view:active {
+	transform: translateX(0);
 }
 </style>
