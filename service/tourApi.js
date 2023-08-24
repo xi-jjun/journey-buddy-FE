@@ -24,6 +24,20 @@ const tourApi = {
 			return error.response.data;
 		}
 	},
+	async getTourDetailInfo(conetentId) {
+		const config = useRuntimeConfig();
+
+		try {
+			const { data } = await axios.get(`${config.public.API_BASE_URL}/api/v1/tour/${conetentId}`, {
+				headers: { 'Access-Control-Allow-Origin': '*', 'ngrok-skip-browser-warning': '123' }
+			});
+
+			return data;
+		} catch (error) {
+			console.log("fail getTourDetailInfo by ", error);
+			return error.response.data;
+		}
+	},
 }
 
 export default tourApi;
