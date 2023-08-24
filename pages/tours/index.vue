@@ -66,7 +66,18 @@ if (result.code === 200) {
 									}]">
 
 		</KakaoMapView>
-  </section>
+
+		<section class="tour-detail-detail-info-section">
+			<h3 class="tour-detail-detail-title">상세 정보</h3>
+			<div class="tour-detail-detail-info">
+				<span>TEL : {{ tourDetail.info['tel'] }}</span>
+				<div>
+					<span>홈페이지 : </span>
+					<span v-html="tourDetail.info['homepage']"></span>
+				</div>
+			</div>
+		</section>
+	</section>
 </template>
 
 <style scoped lang="css">
@@ -132,5 +143,24 @@ if (result.code === 200) {
 
 	padding: 20px 16px;
 	line-height: 170%;
+}
+
+.tour-detail-detail-info-section {
+	padding: 14px;
+}
+
+.tour-detail-detail-title {
+	color: #262C31;
+	font-size: 18px;
+	font-weight: bold;
+	margin-bottom: 12px;
+}
+
+.tour-detail-detail-info {
+	color: #636C73;
+	font-size: 15px;
+	font-weight: 500;
+	text-decoration: none;
+	line-height: 150%;
 }
 </style>
