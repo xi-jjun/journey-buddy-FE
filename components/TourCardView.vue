@@ -1,6 +1,5 @@
 <template>
-<!--	<h1>{{ tourComponent.dist }}</h1>-->
-	<div class="travel-item">
+	<div class="travel-item" @click="navigateTo(`/tours?contentId=${tourComponent.contentid}`)">
 		<div class="travel-item-image">
 			<div class="travel-item-view-cnt">
 				<img src="/images/view_cnt_icon_main_layout.svg"/>
