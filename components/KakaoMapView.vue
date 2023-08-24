@@ -54,6 +54,10 @@ export default {
 				// show marker on kakao map
 				imageMarker.setMap(this.mapInstance);
 
+				if (chat.from === 'tour_detail') {
+					return;
+				}
+
 				// focus div when click marker
 				kakao.maps.event.addListener(imageMarker, 'click', () => {
 					const chatId = chat.id;
@@ -67,7 +71,7 @@ export default {
 		},
 		getMarkerImageUrl(contentType) {
 			const markerImageUrls = [
-				"none",
+				"/images/tours/location_icon.svg",
 				"https://journey-buddy-bucket-local.s3.ap-northeast-2.amazonaws.com/__chat.png",
 				"https://journey-buddy-bucket-local.s3.ap-northeast-2.amazonaws.com/__image.png",
 				"https://journey-buddy-bucket-local.s3.ap-northeast-2.amazonaws.com/__voice.png",
