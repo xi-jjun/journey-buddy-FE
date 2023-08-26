@@ -35,6 +35,25 @@ const logout = () => {
 	window.location.reload();
 };
 
+const resetUserPersonalityTest = async () => {
+	const userToken = userTokenFromLocalStorage.token;
+	const payload = parseJwt(userToken);
+	const userId = payload['user_id'];
+
+	const resetResult = await userApi.resetUserPersonalities(userId, userToken);
+	if (resetResult.code === 200) {
+		// case 1) 초기화 성공 : 이미 테스트했던 유저는 재테스트 진행
+		navigateTo('/define-yourself?from=reTest');
+		return;
+	} else if (resetResult.code === 1) {
+		// case 2) 초기화 없음 : 테스트가 처음인 유저
+		navigateTo('/define-yourself?from=myPage');
+		return;
+	}
+
+	alert("성향 테스트 초기화에 실패했습니다.");
+};
+
 // 주의) pages/index.vue 에 같은 내용의 코드가 존재. 따라서 수정 시 둘 다 수정해줘야 함
 const startNewJourneyBtnClick = async () => {
 	// 토큰이 없으면 --> 로그인 화면으로 이동
@@ -118,7 +137,7 @@ const startNewJourneyBtnClick = async () => {
 		<section class="user-page-menu-list">
 			<button class="user-page-menu-list-btn user-personality-test">
 				<img src="/images/user/user_personality_test.svg" alt="user personality test icon">
-				<span class="menu-title">여행 성향 다시 검사하기</span>
+				<span class="menu-title" @click="resetUserPersonalityTest">여행 성향 다시 검사하기</span>
 			</button>
 			<button class="user-page-menu-list-btn wish-list">
 				<img src="/images/user/heart_icon.svg" alt="heart icon">

@@ -2,6 +2,7 @@
 import nuxtStorage from "nuxt-storage";
 import constant from "~/service/constant";
 
+const route = useRoute();
 const userTokenFromLocalStorage = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY); // user token
 onMounted(() => {
 	if (!userTokenFromLocalStorage) {
@@ -18,14 +19,15 @@ onMounted(() => {
 
 		<div class="start-page-introduce">
       <h2>여행 성향</h2>
-      <h2>알아보기</h2>
+      <h2 v-if="route.query['from'] === 'reTest'">다시 알아보기</h2>
+      <h2 v-else>알아보기</h2>
     </div>
 
 		<div class="start-page-detail-introduce">
       <span>나의 성향과 맞는 AI 친구를 찾아보아요!</span>
     </div>
 
-		<NuxtLink to="/define-yourself/testing" class="start-page-start-btn">
+		<NuxtLink :to="`/define-yourself/testing?from=${route.query['from']}`" class="start-page-start-btn">
       시작하기
     </NuxtLink>
   </section>
