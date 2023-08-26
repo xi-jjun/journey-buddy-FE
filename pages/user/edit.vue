@@ -4,15 +4,16 @@ import constant from "~/service/constant";
 import parseJwt from "~/service/jwtParser";
 import userApi from "~/service/userApi";
 import journeyApi from "~/service/journeyApi";
+import axios from "axios";
 
 /* ============================================
  * UI 컴포넌트용 데이터
  **/
-const nicknameInput = { title: '닉네임 (필수)', placeholder: '유저명을 입력해주세요', readonly: false }
-const emailInput = { title: '이메일 (필수)', placeholder: '이메일을 입력해주세요', readonly: false }
-const passwordInput = { title: '비밀번호', placeholder: '비밀번호를 입력해주세요', readonly: false, type: 'password' }
-const nameInput = { title: '이름 (필수)', placeholder: '이름을 입력해주세요', readonly: false }
-const phoneNumberInput = { title: '휴대전화 (선택)', placeholder: '번호를 입력해주세요 (\'-\'포함)', readonly: false }
+const nicknameInput = { id: 'nickname', title: '닉네임 (필수)', placeholder: '유저명을 입력해주세요', readonly: false }
+const emailInput = { id: 'email', title: '이메일 (필수)', placeholder: '이메일을 입력해주세요', readonly: false }
+const passwordInput = { id: 'password', title: '비밀번호', placeholder: '비밀번호를 입력해주세요', readonly: false, type: 'password' }
+const nameInput = { id: 'name', title: '이름 (필수)', placeholder: '이름을 입력해주세요', readonly: false }
+const phoneNumberInput = { id: 'phoneNumber', title: '휴대전화 (선택)', placeholder: '번호를 입력해주세요 (\'-\'포함)', readonly: false }
 /* ============================================ */
 
 
@@ -39,6 +40,67 @@ onMounted(async () => {
 	}
 });
 
+const userInfoModifySubmitBtnClick = async () => {
+	const uploadProfileImage = document.getElementById("uploadProfileImage");
+	const nickname = document.getElementById("nickname").value;
+	const email = document.getElementById("email").value;
+	const name = document.getElementById("name").value;
+	const phoneNumber = document.getElementById("phoneNumber").value;
+
+	let formData = new FormData();
+	if (uploadProfileImage.files.length) {
+		formData.append('profile_image_url', uploadProfileImage.files[0]);
+	}
+	formData.append('nickname', nickname);
+	formData.append('email', email);
+	formData.append('name', name);
+	formData.append('phoneNumber', phoneNumber);
+
+	const userToken = userTokenFromLocalStorage.token;
+	const payload = parseJwt(userToken);
+	const userId = payload['user_id'];
+	const modificationResult = await submitModificationInfo(userId, formData);
+	if (modificationResult.code === 200) {
+		navigateTo('/');
+		return;
+	}
+
+	alert("유저 정보 변경에 실패했습니다.");
+};
+
+const submitModificationInfo = async (userId, formData) => {
+	const config = useRuntimeConfig();
+
+	try {
+		const { data } = await axios.patch(`${config.public.API_BASE_URL}/api/v1/users/${userId}`, formData, {
+			headers: {
+				Authorization: userTokenFromLocalStorage.token,
+				'Content-Type': 'multipart/form-data',
+				'Access-Control-Allow-Origin': '*',
+				'ngrok-skip-browser-warning': '123',
+			}
+		});
+
+		return data;
+	} catch (error) {
+		const response = error.response;
+		return response.data;
+	}
+};
+
+const showProfileImageWhenSelectPicture = async () => {
+	const profileImage = document.getElementById("uploadProfileImage");
+	const imgShowArea = document.getElementById("profileImageUrl");
+	const image = profileImage.files[0]
+
+	const fileReader = new FileReader();
+	fileReader.onload = (img) => {
+		imgShowArea.src = img.target.result;
+	}
+
+	fileReader.readAsDataURL(image);
+};
+
 </script>
 
 <template>
@@ -49,10 +111,11 @@ onMounted(async () => {
 
 		<div class="user-infos">
 			<div class="user-profile-image-for-edit">
-				<img v-if="userDetail.info['profile_image_url']" :src="userDetail.info['profile_image_url']" class="user-profile-image" alt="user profile image">
-				<img v-else src="/images/user/default_user_profile_image.svg" class="user-profile-image" alt="user default profile image">
+				<img v-if="userDetail.info['profile_image_url']" id="profileImageUrl" :src="userDetail.info['profile_image_url']" class="user-profile-image" alt="user profile image">
+				<img v-else src="/images/user/default_user_profile_image.svg" id="profileImageUrl" class="user-profile-image" alt="user default profile image">
 					<img src="/images/user/user_profile_img_edit_btn_icon.svg" class="user-profile-image-edit-btn"
-							 alt="user image edit btn">
+							 alt="user image edit btn" @click="$refs.uploadProfileImage.click()">
+				<input type="file" id="uploadProfileImage" ref="uploadProfileImage" accept="image/*" style="display: none;" @change="showProfileImageWhenSelectPicture">
 			</div>
 			<span class="user-username">{{ userDetail.info['nickname'] }} 님</span>
 		</div>
@@ -70,7 +133,7 @@ onMounted(async () => {
 			</InputView>
 		</section>
 
-		<button class="edit-submit-btn">
+		<button class="edit-submit-btn" @click="userInfoModifySubmitBtnClick">
 			수정하기
 		</button>
 	</section>

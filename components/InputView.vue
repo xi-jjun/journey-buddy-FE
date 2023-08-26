@@ -1,8 +1,8 @@
 <template>
 	<div class="input-form">
 		<label>{{ component.title }}</label>
-		<input v-if="inputDisable" :placeholder="component.placeholder" :readonly="component.readonly" :type="component.type" :value="inputValue" disabled/>
-		<input v-else :placeholder="component.placeholder" :readonly="component.readonly" :type="component.type" :value="inputValue"/>
+		<input v-if="inputDisable" :id="component.id" :placeholder="component.placeholder" :readonly="component.readonly" :type="component.type" :value="inputValue" disabled/>
+		<input v-else :id="component.id" :placeholder="component.placeholder" :readonly="component.readonly" :type="component.type" :value="inputValue"/>
 	</div>
 </template>
 
