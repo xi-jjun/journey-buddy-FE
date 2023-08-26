@@ -181,8 +181,9 @@ const showMenuView = async () => {
 			져니버디와 함께 새로운 여행을 시작해요!
 		</div>
 		<div v-if="userTokenFromLocalStorage" class="main-layout-user-welcome">
-			<img :src="userDetailInfo.profile_image_url" class="user-profile-image" alt="user-profile-image">
-			환영해요, <strong> {{ userDetailInfo.nickname }}</strong>님!
+			<img v-if="userDetailInfo['profile_image_url']" :src="userDetailInfo['profile_image_url']" class="user-profile-image" alt="user-profile-image">
+			<img v-else src="/images/user/default_user_profile_image.svg" class="user-profile-image" alt="user-profile-image">
+			환영해요, <strong> {{ userDetailInfo['nickname'] }}</strong>님!
 		</div>
 
 		<div v-if="!userTokenFromLocalStorage" class="main-layout-user-login-section">
