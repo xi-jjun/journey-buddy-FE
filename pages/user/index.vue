@@ -1,3 +1,20 @@
+<script setup>
+const userLogin = true;
+const user = {
+	id: 1,
+	username: '행복한 닉네임',
+	age: 24,
+	journey: {
+		id: 1,
+		title: '행복한 제주도 올레길 여행'
+	},
+	buddy: {
+		name: '슬탄 AI',
+	}
+}
+
+</script>
+
 <template>
 	<section class="user-my-page">
 		<BackNavbarView :navbar-title="`마이페이지`">
@@ -46,23 +63,6 @@
 		</div>
 	</section>
 </template>
-
-<script setup>
-const userLogin = true;
-const user = {
-	id: 1,
-	username: '행복한 닉네임',
-	age: 24,
-	journey: {
-		id: 1,
-		title: '행복한 제주도 올레길 여행'
-	},
-	buddy: {
-		name: '슬탄 AI',
-	}
-}
-
-</script>
 
 <style scoped lang="css">
 .user-my-page {
