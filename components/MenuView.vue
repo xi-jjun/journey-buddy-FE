@@ -23,7 +23,7 @@ const logout = () => {
 			</div>
 			<h1 class="home" @click="navigateTo('/')">홈</h1>
 			<h1 class="service-introduction">서비스 소개</h1>
-			<h1 class="my-page" @click="navigateTo('/user')">마이페이지</h1>
+			<h1 v-if="userTokenFromLocalStorage.token" class="my-page" @click="navigateTo('/user')">마이페이지</h1>
 			<h1 v-if="userTokenFromLocalStorage.token" class="logout" @click="logout">로그아웃</h1>
 			<h1 v-if="!userTokenFromLocalStorage.token" class="login" @click="navigateTo('/login')">로그인</h1>
 

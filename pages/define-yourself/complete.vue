@@ -13,7 +13,6 @@ onMounted(() => {
 });
 
 const maleBuddyBtnClicked = async () => {
-	console.log("maleBuddyBtnClicked")
 	const result = await journeyApi.startJourney(1, userTokenFromLocalStorage);
 	if (result.code !== 200) {
 		console.log("error response from maleBuddyBtnClicked");
@@ -23,7 +22,6 @@ const maleBuddyBtnClicked = async () => {
 };
 
 const womanBuddyBtnClicked = async () => {
-	console.log("womanBuddyBtnClicked")
 	const result = await journeyApi.startJourney(2, userTokenFromLocalStorage);
 	if (result.code !== 200) {
 		console.log("error response from womanBuddyBtnClicked");
@@ -52,15 +50,21 @@ const womanBuddyBtnClicked = async () => {
       여행을 떠나요!
     </div>
 
-    <div class="testing-complete-page-choice-notice">
+    <div v-if="route.query['from'] !== 'reTest' && route.query['from'] !== 'myPage'" class="testing-complete-page-choice-notice">
       <span>당신의 여행성향에 맞는 AI의 성별을 선택해주세요!</span>
     </div>
 
-    <div class="testing-complete-page-gender-btns">
+    <div v-if="route.query['from'] !== 'reTest' && route.query['from'] !== 'myPage'"  class="testing-complete-page-gender-btns">
       <button type="button" class="man-buddy-btn" @click="maleBuddyBtnClicked">남성</button>
       <button type="button" class="woman-buddy-btn" @click="womanBuddyBtnClicked">여성</button>
     </div>
-  </section>
+
+    <!-- 마이페이지에서 성향테스트 요청은 여행생성이 아닌, 메인페이지로 이동하게 만든다. -->
+		<button v-if="route.query['from'] === 'reTest' || route.query['from'] === 'myPage'" type="button"
+						class="main-page-btn" @click="navigateTo('/')">
+			메인화면으로 가기
+		</button>
+	</section>
 </template>
 
 <style scoped lang="css">
@@ -136,5 +140,23 @@ const womanBuddyBtnClicked = async () => {
   color: #262C31;
   font-weight: bold;
   font-size: 28px;
+}
+
+.main-page-btn {
+  margin-top: 40px;
+  border-radius: 4px;
+  background-color: #76A4FF;
+  border: none;
+  width: 90vw;
+  height: 48px;
+
+  text-align: center;
+  font-weight: 600;
+  font-size: 16px;
+  color: white;
+}
+
+.main-page-btn:active {
+  background-color: #528dff;
 }
 </style>
