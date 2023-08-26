@@ -1,12 +1,13 @@
 <template>
 	<div class="input-form">
 		<label>{{ component.title }}</label>
-		<input :placeholder="component.placeholder" :readonly="component.readonly" :type="component.type"/>
+		<input v-if="inputDisable" :id="component.id" :placeholder="component.placeholder" :readonly="component.readonly" :type="component.type" :value="inputValue" disabled/>
+		<input v-else :id="component.id" :placeholder="component.placeholder" :readonly="component.readonly" :type="component.type" :value="inputValue"/>
 	</div>
 </template>
 
 <script setup>
-const { component } = defineProps(['component']);
+const { component, inputValue, inputDisable } = defineProps(['component', 'input-value', 'input-disable']);
 </script>
 
 <style scoped lang="css">

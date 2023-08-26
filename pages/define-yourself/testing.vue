@@ -18,6 +18,7 @@ import nuxtStorage from "nuxt-storage";
 import constant from "~/service/constant";
 import parseJwt from "~/service/jwtParser";
 
+const route = useRoute();
 let userSelectedInfos = [];
 const userTokenFromLocalStorage = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY); // user token
 
@@ -35,9 +36,15 @@ async function savePersonalityIds(value) {
 			return;
 		}
 
+		if (route.query['from']) {
+			// reTest 혹은 myPage 로 부터 온 요청들에 대해서는 성향만 테스트 하기에,
+			// 테스트 완료 페이지에서 AI 성별을 고르는 선택지가 아닌, 메인 페이지로 이동하는 버튼을 노출시키기 위해 from 파라미터를 넘긴다.
+			navigateTo(`/define-yourself/complete?from=${route.query['from']}`);
+			return;
+		}
 		navigateTo('/define-yourself/complete');
 	}
-	console.log("after arr : ", userSelectedInfos);
+	// console.log("after arr : ", userSelectedInfos);
 }
 
 // 시간 없으니 아래 정보들은 하드코딩 박아서 진행

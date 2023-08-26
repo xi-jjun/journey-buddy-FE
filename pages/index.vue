@@ -92,6 +92,7 @@ const tabClickEvent = async (event) => {
 	tourListByLocation.value = await tourApi.getTourListByLocation(searchParams);
 };
 
+// 주의) user/index.vue 에 같은 내용의 코드가 존재. 따라서 수정 시 둘 다 수정해줘야 함
 const startNewJourneyBtnClick = async () => {
 	// 토큰이 없으면 --> 로그인 화면으로 이동
 	if (!userTokenFromLocalStorage) {
@@ -107,11 +108,7 @@ const startNewJourneyBtnClick = async () => {
 		return;
 	}
 
-	const userPersonalities = result.user_personalities;
-	// 	유저 성향 정보가 존재하지 않을 때, 유저 성향 테스트 페이지로 이동
-	if (userPersonalities.length === 0) {
-		navigateTo('/define-yourself');
-	}
+	const userPersonalities = result['user_personalities'];
 
 	const userOngoingJourneyResult = await journeyApi.getCurrentUserJourney(userTokenFromLocalStorage);
 	if (userOngoingJourneyResult.code !== 200) {
@@ -129,6 +126,12 @@ const startNewJourneyBtnClick = async () => {
 	// 여행중인 여행이 이미 존재하면, 초기 세팅 끝나고 현재 채팅 중이라는 뜻이기에 채팅방으로 이동
 	if (userOngoingJourney['status'] === 2) {
 		navigateTo(`/chat?journeyId=${userOngoingJourney['id']}`);
+		return;
+	}
+
+	// 	유저 성향 정보가 존재하지 않을 때, 유저 성향 테스트 페이지로 이동
+	if (userPersonalities.length === 0) {
+		navigateTo('/define-yourself');
 		return;
 	}
 
@@ -179,8 +182,9 @@ const showMenuView = async () => {
 			져니버디와 함께 새로운 여행을 시작해요!
 		</div>
 		<div v-if="userTokenFromLocalStorage" class="main-layout-user-welcome">
-			<img :src="userDetailInfo.profile_image_url" class="user-profile-image" alt="user-profile-image">
-			환영해요, <strong> {{ userDetailInfo.nickname }}</strong>님!
+			<img v-if="userDetailInfo['profile_image_url']" :src="userDetailInfo['profile_image_url']" class="user-profile-image" alt="user-profile-image">
+			<img v-else src="/images/user/default_user_profile_image.svg" class="user-profile-image" alt="user-profile-image">
+			환영해요, <strong> {{ userDetailInfo['nickname'] }}</strong>님!
 		</div>
 
 		<div v-if="!userTokenFromLocalStorage" class="main-layout-user-login-section">
