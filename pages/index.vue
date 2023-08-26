@@ -92,6 +92,7 @@ const tabClickEvent = async (event) => {
 	tourListByLocation.value = await tourApi.getTourListByLocation(searchParams);
 };
 
+// 주의) user/index.vue 에 같은 내용의 코드가 존재. 따라서 수정 시 둘 다 수정해줘야 함
 const startNewJourneyBtnClick = async () => {
 	// 토큰이 없으면 --> 로그인 화면으로 이동
 	if (!userTokenFromLocalStorage) {
@@ -107,10 +108,11 @@ const startNewJourneyBtnClick = async () => {
 		return;
 	}
 
-	const userPersonalities = result.user_personalities;
+	const userPersonalities = result['user_personalities'];
 	// 	유저 성향 정보가 존재하지 않을 때, 유저 성향 테스트 페이지로 이동
 	if (userPersonalities.length === 0) {
 		navigateTo('/define-yourself');
+		return;
 	}
 
 	const userOngoingJourneyResult = await journeyApi.getCurrentUserJourney(userTokenFromLocalStorage);
