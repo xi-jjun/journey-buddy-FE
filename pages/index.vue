@@ -109,11 +109,6 @@ const startNewJourneyBtnClick = async () => {
 	}
 
 	const userPersonalities = result['user_personalities'];
-	// 	유저 성향 정보가 존재하지 않을 때, 유저 성향 테스트 페이지로 이동
-	if (userPersonalities.length === 0) {
-		navigateTo('/define-yourself');
-		return;
-	}
 
 	const userOngoingJourneyResult = await journeyApi.getCurrentUserJourney(userTokenFromLocalStorage);
 	if (userOngoingJourneyResult.code !== 200) {
@@ -131,6 +126,12 @@ const startNewJourneyBtnClick = async () => {
 	// 여행중인 여행이 이미 존재하면, 초기 세팅 끝나고 현재 채팅 중이라는 뜻이기에 채팅방으로 이동
 	if (userOngoingJourney['status'] === 2) {
 		navigateTo(`/chat?journeyId=${userOngoingJourney['id']}`);
+		return;
+	}
+
+	// 	유저 성향 정보가 존재하지 않을 때, 유저 성향 테스트 페이지로 이동
+	if (userPersonalities.length === 0) {
+		navigateTo('/define-yourself');
 		return;
 	}
 
