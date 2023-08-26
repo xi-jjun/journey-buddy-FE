@@ -1,3 +1,26 @@
+<script setup>
+const nicknameInput = { title: '닉네임', placeholder: '유저명을 입력해주세요', readonly: false }
+const emailInput = { title: '아이디 (이메일)', placeholder: '이메일을 입력해주세요', readonly: false }
+const passwordInput = { title: '비밀번호', placeholder: '비밀번호를 입력해주세요', readonly: false, type: 'password' }
+const nameInput = { title: '이름', placeholder: '이름을 입력해주세요', readonly: false }
+const phoneNumberInput = { title: '휴대전화 (선택)', placeholder: '번호를 입력해주세요 (\'-\'포함)', readonly: false }
+
+const userId = useRoute().query.id;
+const user = {
+	id: 1,
+	username: '행복한 닉네임',
+	age: 24,
+	journey: {
+		id: 1,
+		title: '행복한 제주도 올레길 여행'
+	},
+	buddy: {
+		name: '슬탄 AI',
+	}
+}
+
+</script>
+
 <template>
 	<section class="user-info-edit-page">
 		<BackNavbarView :navbar-title="`프로필 편집`">
@@ -33,29 +56,6 @@
 <!--		</div>-->
 	</section>
 </template>
-
-<script setup>
-const nicknameInput = { title: '닉네임', placeholder: '유저명을 입력해주세요', readonly: false }
-const emailInput = { title: '아이디 (이메일)', placeholder: '이메일을 입력해주세요', readonly: false }
-const passwordInput = { title: '비밀번호', placeholder: '비밀번호를 입력해주세요', readonly: false, type: 'password' }
-const nameInput = { title: '이름', placeholder: '이름을 입력해주세요', readonly: false }
-const phoneNumberInput = { title: '휴대전화 (선택)', placeholder: '번호를 입력해주세요 (\'-\'포함)', readonly: false }
-
-const userId = useRoute().query.id;
-const user = {
-	id: 1,
-	username: '행복한 닉네임',
-	age: 24,
-	journey: {
-		id: 1,
-		title: '행복한 제주도 올레길 여행'
-	},
-	buddy: {
-		name: '슬탄 AI',
-	}
-}
-
-</script>
 
 <style scoped lang="css">
 .user-info-edit-page {
