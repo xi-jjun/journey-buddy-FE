@@ -9,28 +9,32 @@ import userPersonalityTestingApi from "~/service/userPersonalityTestingApi";
 import journeyApi from "~/service/journeyApi";
 import MenuView from "~/components/MenuView.vue";
 
-let userCurrentJourney = '현재 진행중인 여행 타이틀';
-let totalJourneyCount = 0;
-const totalJourneyCntResult = await journeyApi.getTotalJourneyCount();
-const totalJourneyCountFromAllUsers = totalJourneyCntResult['journey_count'];
 
+const journeyDetail = reactive({ totalUserCnt: 0, totalAllUsersCnt: 0, currentJourney: {} })
 let userDetailInfo = ref(null); // 사용자 정보 객체
 const tourListByLocation = ref(null); // tour api 를 통한 관광지 객체 리스트
-let userTokenFromLocalStorage;
+const userTokenFromLocalStorage = reactive({ token: '' });
 if (nuxtStorage.localStorage) {
-	userTokenFromLocalStorage = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY); // user token
-	const payload = parseJwt(userTokenFromLocalStorage);
-	const userTotalJourneyCntResult = await journeyApi.getTotalUserJourneyCount(payload['user_id']);
-	totalJourneyCount = userTotalJourneyCntResult['journey_count'];
-
-	// 메인 페이지에 현재 진행중인 여행 타이틀 노출 위해 추가
-	const userTravelingJourneyResult = await journeyApi.getCurrentUserJourney(userTokenFromLocalStorage);
-	if (userTravelingJourneyResult.code === 200) {
-		userCurrentJourney = userTravelingJourneyResult['journey']['title'];
-	}
+	userTokenFromLocalStorage.token = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY);
 }
 
 onMounted(async () => {
+	userTokenFromLocalStorage.token = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY); // user token
+	const userToken = userTokenFromLocalStorage.token;
+	if (userToken) {
+		const payload = parseJwt(userToken);
+		const userTotalJourneyCntResult = await journeyApi.getTotalUserJourneyCount(payload['user_id']);
+		journeyDetail.totalUserCnt = userTotalJourneyCntResult['journey_count']; // 사용자가 진행한 여행의 총 개수
+
+		// 메인 페이지에 현재 진행중인 여행 타이틀 노출 위해 추가
+		const userTravelingJourneyResult = await journeyApi.getCurrentUserJourney(userToken);
+		journeyDetail.currentJourney['title'] = userTravelingJourneyResult['journey']['title'];
+	} else {
+		// 비로그인 상태에서 모든 유저의 총 여행 수 노출을 위한 api
+		const totalJourneyCntResult = await journeyApi.getTotalJourneyCount();
+		journeyDetail.totalAllUsersCnt = totalJourneyCntResult['journey_count'];
+	}
+
 	const coords = await tourApi.getCurrentLocation();
 	const searchParams = {
 		lat: coords.lat,
@@ -42,10 +46,11 @@ onMounted(async () => {
 	tourListByLocation.value = await tourApi.getTourListByLocation(searchParams);
 });
 
-if (userTokenFromLocalStorage) {
-	const userTokenPayload = parseJwt(userTokenFromLocalStorage); // user_id, email, expired_at
-	const userId = userTokenPayload['user_id'];
-	const expiredAt = userTokenPayload['expired_at'];
+if (userTokenFromLocalStorage.token) {
+	const userToken = userTokenFromLocalStorage.token;
+	const payload = parseJwt(userToken); // user_id, email, expired_at
+	const userId = payload['user_id'];
+	const expiredAt = payload['expired_at'];
 	const now = new Date();
 	if (now > expiredAt) {
 		nuxtStorage.localStorage.removeItem(constant.LOCAL_STORAGE_USER_TOKEN_KEY);
@@ -53,7 +58,7 @@ if (userTokenFromLocalStorage) {
 		navigateTo('/login');
 	}
 
-	const result = await userApi.getUserDetail(userId, userTokenFromLocalStorage);
+	const result = await userApi.getUserDetail(userId, userToken);
 
 	if (result.code !== 200) {
 		// 서버에서 값을 못 받아 왔다면, 로그인 화면으로 이동 (어차피 로그인된 상태라면, 메인 화면으로 다시 리다이렉트 됨)
@@ -95,14 +100,15 @@ const tabClickEvent = async (event) => {
 // 주의) user/index.vue 에 같은 내용의 코드가 존재. 따라서 수정 시 둘 다 수정해줘야 함
 const startNewJourneyBtnClick = async () => {
 	// 토큰이 없으면 --> 로그인 화면으로 이동
-	if (!userTokenFromLocalStorage) {
+	const userToken = userTokenFromLocalStorage.token;
+	if (!userToken) {
 		navigateTo('/login');
 		return;
 	}
 	// 토큰이 존재할 때,
-	const userTokenPayload = parseJwt(userTokenFromLocalStorage); // user_id, email, expired_at
+	const userTokenPayload = parseJwt(userToken); // user_id, email, expired_at
 	const userId = userTokenPayload['user_id'];
-	const result = await userPersonalityTestingApi.getUserPersonalityTestResult(userId, userTokenFromLocalStorage);
+	const result = await userPersonalityTestingApi.getUserPersonalityTestResult(userId, userToken);
 	if (result.code !== 200) {
 		console.log("error response from startNewJourneyBtnClick");
 		return;
@@ -110,7 +116,7 @@ const startNewJourneyBtnClick = async () => {
 
 	const userPersonalities = result['user_personalities'];
 
-	const userOngoingJourneyResult = await journeyApi.getCurrentUserJourney(userTokenFromLocalStorage);
+	const userOngoingJourneyResult = await journeyApi.getCurrentUserJourney(userToken);
 	if (userOngoingJourneyResult.code !== 200) {
 		console.log("error response from startNewJourneyBtnClick - userOngoingJourneyResult");
 		return;
@@ -177,32 +183,32 @@ const showMenuView = async () => {
 			<img src="/images/menu_btn_main_layout_upside.png" class="upside-menu-btn" @click="showMenuView"/>
 		</div>
 
-		<div v-if="!userTokenFromLocalStorage" class="main-layout-anonymous-welcome">
+		<div v-if="!userTokenFromLocalStorage.token" class="main-layout-anonymous-welcome">
 			환영합니다,<br/>
 			져니버디와 함께 새로운 여행을 시작해요!
 		</div>
-		<div v-if="userTokenFromLocalStorage" class="main-layout-user-welcome">
+		<div v-if="userTokenFromLocalStorage.token" class="main-layout-user-welcome">
 			<img v-if="userDetailInfo['profile_image_url']" :src="userDetailInfo['profile_image_url']" class="user-profile-image" alt="user-profile-image">
 			<img v-else src="/images/user/default_user_profile_image.svg" class="user-profile-image" alt="user-profile-image">
 			환영해요, <strong> {{ userDetailInfo['nickname'] }}</strong>님!
 		</div>
 
-		<div v-if="!userTokenFromLocalStorage" class="main-layout-user-login-section">
+		<div v-if="!userTokenFromLocalStorage.token" class="main-layout-user-login-section">
 			<NuxtLink to="/login" class="user-login-section-login">로그인</NuxtLink>
 			<NuxtLink to="/sign-up" class="user-login-section-sign-up">회원가입</NuxtLink>
 		</div>
-		<div v-if="userTokenFromLocalStorage" class="main-layout-current-journey">
+		<div v-if="userTokenFromLocalStorage.token" class="main-layout-current-journey">
 			<span>진행중인 여행</span>
-			<div class="current-journey-title">{{ userCurrentJourney }}</div>
+			<div class="current-journey-title">{{ journeyDetail.currentJourney['title'] }}</div>
 		</div>
 
 		<div class="main-layout-travel-with-journey-buddy">
-			<span v-if="!userTokenFromLocalStorage" class="travel-with-journey-buddy-title">져니버디와 함께한 여행</span> <!-- 로그인안된 유저들이 보는 문구 -->
-			<span v-if="userTokenFromLocalStorage" class="travel-with-journey-buddy-title">AI와 함께한 여행기록</span> <!-- 로그인된 유저들이 보는 문구 -->
-			<span v-if="userTokenFromLocalStorage && totalJourneyCount === 0" class="travel-with-journey-buddy-total-count">여행을 떠나요!</span> <!-- 로그인 된 상태 AND 여행 0회 : 여행을 떠나요 문구 출력 -->
-			<span v-if="userTokenFromLocalStorage && totalJourneyCount !== 0" class="travel-with-journey-buddy-total-count">{{ totalJourneyCount }}</span> <!-- 로그인 된 상태 : 해당 유저의 여행 총 횟수 -->
-			<span v-if="!userTokenFromLocalStorage" class="travel-with-journey-buddy-total-count">{{ totalJourneyCountFromAllUsers }}</span> <!-- 로그인 안된 상태 : 모든 유저의 여행 총 횟수 -->
-			<img v-if="userTokenFromLocalStorage" src="/images/go_to_icon_main_layout.svg" alt="goto_journey" @click="navigateTo('/journey-history')"/>
+			<span v-if="!userTokenFromLocalStorage.token" class="travel-with-journey-buddy-title">져니버디와 함께한 여행</span> <!-- 로그인안된 유저들이 보는 문구 -->
+			<span v-if="userTokenFromLocalStorage.token" class="travel-with-journey-buddy-title">AI와 함께한 여행기록</span> <!-- 로그인된 유저들이 보는 문구 -->
+			<span v-if="userTokenFromLocalStorage.token && journeyDetail.totalUserCnt === 0" class="travel-with-journey-buddy-total-count">여행을 떠나요!</span> <!-- 로그인 된 상태 AND 여행 0회 : 여행을 떠나요 문구 출력 -->
+			<span v-if="userTokenFromLocalStorage.token && journeyDetail.totalUserCnt !== 0" class="travel-with-journey-buddy-total-count">{{ journeyDetail.totalUserCnt }}</span> <!-- 로그인 된 상태 : 해당 유저의 여행 총 횟수 -->
+			<span v-if="!userTokenFromLocalStorage.token" class="travel-with-journey-buddy-total-count">{{ journeyDetail.totalAllUsersCnt }}</span> <!-- 로그인 안된 상태 : 모든 유저의 여행 총 횟수 -->
+			<img v-if="userTokenFromLocalStorage.token" src="/images/go_to_icon_main_layout.svg" alt="goto_journey" @click="navigateTo('/journey-history')"/>
 		</div>
 
 		<div class="main-layout-travel-start-btns">
