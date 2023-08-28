@@ -10,7 +10,7 @@ onMounted(async () => {
 const logout = () => {
 	nuxtStorage.localStorage.removeItem(constant.LOCAL_STORAGE_USER_TOKEN_KEY);
 	userTokenFromLocalStorage.token = undefined;
-	window.location.reload();
+	window.location = 'https://journey-buddy.com';
 };
 
 </script>
