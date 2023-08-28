@@ -1,6 +1,7 @@
 <script setup>
 import nuxtStorage from 'nuxt-storage';
 import constant from '~/service/constant'
+import userApi from "~/service/userApi";
 
 onMounted(() => {
 	const token = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY);
@@ -26,6 +27,11 @@ const loginBtnClick = async () => {
 		nuxtStorage.localStorage.setData(constant.LOCAL_STORAGE_USER_TOKEN_KEY, token, 24, 'h');
 		navigateTo('/');
 	}
+};
+
+const kakaoLoginBtnClick = async () => {
+	const result = await userApi.getKakaoLoginUrl();
+	window.location = result['login_url'];
 };
 </script>
 
@@ -65,8 +71,8 @@ const loginBtnClick = async () => {
 
 		<div class="additional-simple-sign-up-icons">
 			<div class="sign-up-icons">
-				<img src="/images/login/naver_logo_login_page.svg"/>
-				<img src="/images/login/kakao_logo_login_page.svg"/>
+				<img src="/images/login/naver_logo_login_page.svg" @click="alert('네이버 로그인 연동은 현재 준비중입니다.ㅠ')"/>
+				<img src="/images/login/kakao_logo_login_page.svg" @click="kakaoLoginBtnClick"/>
 			</div>
 		</div>
 	</section>
