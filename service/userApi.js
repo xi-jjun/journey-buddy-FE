@@ -51,6 +51,18 @@ const userApi = {
 			return error.response.data;
 		}
 	},
+	async getKakaoLoginUrl() {
+		const config = useRuntimeConfig();
+		try {
+			const { data } = await axios.get(`${config.public.API_BASE_URL}/api/v1/users/kakao/login`, {
+				headers: { 'Access-Control-Allow-Origin': '*', 'ngrok-skip-browser-warning': '123' },
+			});
+			return data;
+		} catch (error) {
+			console.log("fail getKakaoLoginUrl by ", error);
+			return error.response.data;
+		}
+	},
 }
 
 export default userApi;
