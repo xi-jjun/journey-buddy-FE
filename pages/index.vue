@@ -10,16 +10,32 @@ import journeyApi from "~/service/journeyApi";
 import MenuView from "~/components/MenuView.vue";
 
 
+const route = useRoute();
 const journeyDetail = reactive({ totalUserCnt: 0, totalAllUsersCnt: 0, currentJourney: {} })
 let userDetailInfo = ref(null); // 사용자 정보 객체
 const tourListByLocation = ref(null); // tour api 를 통한 관광지 객체 리스트
 const userTokenFromLocalStorage = reactive({ token: '' });
 if (nuxtStorage.localStorage) {
-	userTokenFromLocalStorage.token = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY);
+	// kakao login의 경우, 로그인 성공 시 token을 쿼리 파라미터로 메인 페이지에 랜딩 시키기에 token 키가 존재한다면 넣어주도록 한다.
+	if (route.query['from'] === 'kakaoLogin' && route.query['token']) {
+		const token = route.query['token'];
+		userTokenFromLocalStorage.token = token;
+		nuxtStorage.localStorage.setData(constant.LOCAL_STORAGE_USER_TOKEN_KEY, token, 24, 'h');
+	} else {
+		userTokenFromLocalStorage.token = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY);
+	}
 }
 
 onMounted(async () => {
-	userTokenFromLocalStorage.token = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY); // user token
+	// kakao login의 경우, 로그인 성공 시 token을 쿼리 파라미터로 메인 페이지에 랜딩 시키기에 token 키가 존재한다면 넣어주도록 한다.
+	if (route.query['from'] === 'kakaoLogin' && route.query['token']) {
+		const token = route.query['token'];
+		userTokenFromLocalStorage.token = token;
+		nuxtStorage.localStorage.setData(constant.LOCAL_STORAGE_USER_TOKEN_KEY, token, 24, 'h');
+	} else {
+		userTokenFromLocalStorage.token = nuxtStorage.localStorage.getData(constant.LOCAL_STORAGE_USER_TOKEN_KEY); // user token
+	}
+
 	const userToken = userTokenFromLocalStorage.token;
 	if (userToken) {
 		const payload = parseJwt(userToken);
@@ -145,7 +161,6 @@ const startNewJourneyBtnClick = async () => {
 	navigateTo("/define-yourself/complete?from=main_page");
 };
 
-let showMenu = false;
 const showMenuView = async () => {
 	const sideBar = document.getElementById("side-bar-fixed-view");
 
@@ -190,7 +205,10 @@ const showMenuView = async () => {
 		<div v-if="userTokenFromLocalStorage.token" class="main-layout-user-welcome">
 			<img v-if="userDetailInfo['profile_image_url']" :src="userDetailInfo['profile_image_url']" class="user-profile-image" alt="user-profile-image">
 			<img v-else src="/images/user/default_user_profile_image.svg" class="user-profile-image" alt="user-profile-image">
-			환영해요, <strong> {{ userDetailInfo['nickname'] }}</strong>님!
+			환영해요,
+			<strong v-if="userDetailInfo['nickname']"> {{ userDetailInfo['nickname'] }}</strong>
+			<strong v-else>여행 동반자</strong>
+			님!
 		</div>
 
 		<div v-if="!userTokenFromLocalStorage.token" class="main-layout-user-login-section">
