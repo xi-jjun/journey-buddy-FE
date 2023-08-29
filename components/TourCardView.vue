@@ -8,8 +8,8 @@
 			<div class="travel-item-like-btn">
 				<img src="/images/like_icon_main_layout.svg">
 			</div>
-			<img v-if="tourComponent.firstimage" :src="`https://${tourComponent.firstimage.substr(7, tourComponent.firstimage.length)}`">
-			<img v-if="!tourComponent.firstimage" src="/images/jb_logo_main_layout.svg">
+			<img v-if="tourComponent.firstimage" :src="`https://${tourComponent.firstimage.substr(7, tourComponent.firstimage.length)}`" class="tour-image">
+			<img v-if="!tourComponent.firstimage" src="/images/jb_logo_black_for_tour_default_image.png" class="default-tour-image">
 		</div>
 		<div class="travel-item-description">
 			<span>{{ tourComponent.addr1.split(' ')[0] }}</span>
@@ -37,9 +37,16 @@ const { tourComponent } = defineProps(['tour-component'])
   position: relative;
 }
 
-.travel-item-image > img {
+.tour-image {
 	object-fit: cover;
 	width: 100%;
+	height: 140px; /* TODO : 생각이 안나서 일단은 px로 박음 */
+}
+
+.default-tour-image {
+	object-fit: scale-down;
+	width: 100%;
+	opacity: 0.5;
 	height: 140px; /* TODO : 생각이 안나서 일단은 px로 박음 */
 }
 
